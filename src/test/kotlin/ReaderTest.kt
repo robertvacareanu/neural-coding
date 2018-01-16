@@ -33,7 +33,7 @@ class ReaderTest {
         assert(spktwe.version almostEqual 1.0)
         assert(spktwe.storedChannelNames[0] == "El_01")
         assert(spktwe.storedChannelNames[6] == "El_07")
-        assert(spktwe.spikesInEachChannel[5] == 11908)
+        assert(spktwe.spikesInEachChannel[5] == 63055)
         assert(spktwe.spikeTimesSampleFrequency almostEqual 32000.0)
         assert(spktwe.waveformSpikeOffset == 19)
         assert(spktwe.waveformInternalSamplingFrequency almostEqual 32000.0)

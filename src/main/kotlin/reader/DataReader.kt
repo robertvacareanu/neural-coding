@@ -73,12 +73,12 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
         val spikew = readFloatBinary(spikeMetadata.basePath + spikeMetadata.spikeWaveformPath)
         val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath)
 
-        for (float in 0 until spikew.size step 39) {
+        for (spikeInex in 0 until spikew.size step spikeMetadata.waveformLength) {
             val spikeData = mutableListOf<Float>()
-            (0 until 39).mapTo(spikeData) {
-                spikew[float + it]
+            (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
+                spikew[spikeInex + it]
             }
-            result.add(Spike(times[float / 39] / waveformMetadata.samplingFrequency, spikeData.toFloatArray()))
+            result.add(Spike(times[spikeInex / spikeMetadata.waveformLength] / waveformMetadata.samplingFrequency, spikeData.toFloatArray()))
         }
 
         return result.toList()

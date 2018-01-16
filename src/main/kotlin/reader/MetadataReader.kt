@@ -161,6 +161,6 @@ class MetadataReader {
     }
 
 
-    private fun basePath(relativeTo: String) = relativeTo.replaceAfterLast("/", "")
+    private fun basePath(relativeTo: String) = relativeTo.replaceAfterLast(File.separator, "")
 
 }
