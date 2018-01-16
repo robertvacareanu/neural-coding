@@ -1,5 +1,14 @@
 package reader
 
+import model.Spike
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.ChartUtilities
+import org.jfree.chart.plot.PlotOrientation
+import org.jfree.data.xy.XYSeries
+import org.jfree.data.xy.XYSeriesCollection
+import java.io.File
+import java.io.FileOutputStream
+
 /**
  * Created by robert on 12/9/17.
  * The path to the folder containing the metadata files with extension ".epd", ".ssd" and ".spktwe" is expected.
@@ -15,4 +24,17 @@ fun main(args: Array<String>) {
     println(metadataReader.readSPKTWE())
     println("\n\n")
     println(metadataReader.readSSD())
+}
+
+fun Spike.toGraph(name: String, width: Int = 500, height: Int = 500) {
+    val dataset = XYSeriesCollection()
+    val series = XYSeries("Data")
+    for (float in 0 until waveform.size) {
+        series.add(float, waveform[float])
+    }
+    dataset.addSeries(series)
+
+    val ds = ChartFactory.createXYLineChart("Spike", "Sample number", "Amplitude (uv)", dataset, PlotOrientation.VERTICAL, true, true, false)
+
+    ChartUtilities.writeChartAsPNG(FileOutputStream(File(name)), ds, width, height)
 }
