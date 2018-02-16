@@ -1,5 +1,6 @@
 package reader
 
+import logger.Log
 import model.Spike
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartUtilities
@@ -17,6 +18,7 @@ import java.io.FileOutputStream
  * Those paths are expected to be valid.
  */
 fun main(args: Array<String>) {
+    Log.v("main", "In main now")
     println(args[0])
     val metadataReader = MetadataReader(args[0])
     println(metadataReader.readEPD())
@@ -24,6 +26,7 @@ fun main(args: Array<String>) {
     println(metadataReader.readSPKTWE())
     println("\n\n")
     println(metadataReader.readSSD())
+    Log.v("main", "Exit main now")
 }
 
 fun Spike.toGraph(name: String, width: Int = 500, height: Int = 500) {

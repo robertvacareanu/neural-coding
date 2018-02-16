@@ -1,0 +1,7 @@
+package algorithm.extractor.feature
+
+/**
+ * Created by robert on 2/15/18.
+ */
+interface DataExtractor {
+}
