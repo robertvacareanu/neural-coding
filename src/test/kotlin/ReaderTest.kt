@@ -1,3 +1,4 @@
+import algorithm.extractor.data.BetweenStim
 import org.junit.Test
 import reader.DataReader
 import reader.MetadataReader
@@ -158,6 +159,28 @@ class ReaderTest {
         assert(trials[100].stimOnOffset == 15173937)
         assert(trials[100].stimOffOffset == 15259445)
         assert(trials[100].trialEndOffset == 15275477)
+
+    }
+
+    @Test
+    fun betwenStim() {
+
+        val mr = MetadataReader(basePath)
+        val dr = DataReader(mr.readEPD(), mr.readSSD(), mr.readSPKTWE(), mr.readETI())
+
+        val betweenStim = BetweenStim(dr)
+
+        val trials = dr.readTrials()
+
+        val testData = betweenStim.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].orientation == 0)
+        assert(testData[0].channelsData[0][0] almostEqual 18.52493)
+        assert(testData[0].channelsData[0][testData[0].channelsData[0].size-1] almostEqual -6.831182)
+
+        assert(testData[1].orientation == 90)
+        assert(testData[1].channelsData[0][0] almostEqual 4.8894005)
+        assert(testData[1].channelsData[0][testData[0].channelsData[0].size-1] almostEqual 7.428614)
 
     }
 

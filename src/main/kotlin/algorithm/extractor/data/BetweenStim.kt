@@ -1,34 +1,25 @@
 package algorithm.extractor.data
 
-import model.metadata.SpikeMetadata
+import model.Trial
+import model.TrialData
 import reader.DataReader
-import java.io.File
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 /**
  * Created by robert on 2/16/18.
  * Between stimulus means between event 2 and event 3
+ * Example: Trial start (t1), Stim ON (t2), Stim OFF (t3), Trial end (t4)
+ * In this case, the data considered is from t2 (inclusive) until t3 (exclusive)
  */
-class BetweenStim(val spikeMetadata: SpikeMetadata, val dataReader: DataReader): DataExtractor<FloatArray> {
-    override fun extractData(): FloatArray {
-        val eventTimestampsFile = File(spikeMetadata.eventTimestampsPath)
+class BetweenStim(val dataReader: DataReader) : DataExtractor<List<Trial>, List<TrialData>> {
+    override fun extractData(data: List<Trial>) = data.map { trial ->
+        val trialDataChannels = mutableListOf<FloatArray>()
 
-        /**
-         * Assuming that the 4 events codes doesn't change with channels
-         */
+        (1..dataReader.numberOfChannels()).mapTo(trialDataChannels, {
+            dataReader.readChannelWaveform(it, trial.stimOnOffset until trial.stimOffOffset).data
+        })
 
-        val result = arrayListOf<Float>()
-        eventTimestampsFile.inputStream().channel.use {
-            val bb = ByteBuffer.allocate(1024 * 1024)
-            bb.order(ByteOrder.LITTLE_ENDIAN)
-            while (it.read(bb) > 0) {
-                bb.flip()
-                (0 until bb.limit() step 4).mapTo(result) { bb.getFloat(it) }
-                bb.clear()
-            }
-        }
+        return@map TrialData(trial.orientation, trialDataChannels)
+    }
 
-        return result.toFloatArray()
-   }
+
 }

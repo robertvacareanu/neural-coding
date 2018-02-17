@@ -136,4 +136,6 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
             )
         return result
     }
+
+    override fun numberOfChannels() = waveformMetadata.eegChannels
 }

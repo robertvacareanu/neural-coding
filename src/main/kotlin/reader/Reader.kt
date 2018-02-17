@@ -19,4 +19,6 @@ interface Reader {
 
     fun readTrials(): List<Trial>
 
+    fun numberOfChannels(): Int
+
 }

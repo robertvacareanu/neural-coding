@@ -6,6 +6,6 @@ package algorithm.extractor.data
  * Make use of the fact that each trial consists of exactly 4 event codes:
  * Trial start, Stim ON, Stim OFF, Trial end
  */
-interface DataExtractor<out DATA> {
-    fun extractData(): DATA
+interface DataExtractor<in RAW, out PROCESSED> {
+    fun extractData(data: RAW): PROCESSED
 }
