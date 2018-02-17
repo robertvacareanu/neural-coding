@@ -2,6 +2,8 @@ package reader
 
 import model.Segment
 import model.Spike
+import model.Trial
+import model.metadata.EtiMetadata
 import model.metadata.SpikeMetadata
 import model.metadata.SpikeSortedMetadata
 import model.metadata.WaveformMetadata
@@ -12,7 +14,7 @@ import java.nio.ByteOrder
 /**
  * Created by robert on 1/13/18.
  */
-class DataReader(private val waveformMetadata: WaveformMetadata, private val spikeSortedMetadata: SpikeSortedMetadata, private val spikeMetadata: SpikeMetadata) : Reader {
+class DataReader(private val waveformMetadata: WaveformMetadata, private val spikeSortedMetadata: SpikeSortedMetadata, private val spikeMetadata: SpikeMetadata, private val etiMetadata: EtiMetadata) : Reader {
 
 
     private fun readFloatBinary(filePath: String): FloatArray {
@@ -95,13 +97,12 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
     }
 
     /**
-     * channel from 1 to the size defined in metadata
+     * @param channel from 1 to the size defined in metadata
      */
     override fun readChannelWaveform(channel: Int, between: IntRange): Segment = Segment(between.first, readFloatBinary(waveformMetadata.basePath + waveformMetadata.channelPaths[channel - 1], between))
 
 
     override fun readChannelSpikes(channel: Int, between: IntRange): List<Spike> {
-        val spikesBefore = channelSpikeCountUntil(channel)
         val result = mutableListOf<Spike>()
 
         val spikeCount = spikeMetadata.waveformLength * (channelSpikeCountUntil(channel) + between.first)
@@ -116,5 +117,23 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
             result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength] / waveformMetadata.samplingFrequency, spikeData.toFloatArray()))
         }
         return result.toList()
+    }
+
+    override fun readTrials(): List<Trial> {
+            val result = mutableListOf<Trial>()
+            val eti = File(etiMetadata.path)
+            val timestamps = readIntBinary(spikeMetadata.basePath + spikeMetadata.eventTimestampsPath)
+            eti.readLines().drop(4).mapIndexedTo(result,
+                {index, line ->
+                    val strings = line.split(",")
+                    val timestampIndex = 4 * index
+                    Trial(trialNumber = strings[0].toInt(), orientation = strings[3].split(" ").last().toInt(),
+                            trialStartOffset = timestamps[timestampIndex],
+                            stimOnOffset = timestamps[timestampIndex+1],
+                            stimOffOffset = timestamps[timestampIndex+2],
+                            trialEndOffset = timestamps[timestampIndex+3])
+                }
+            )
+        return result
     }
 }

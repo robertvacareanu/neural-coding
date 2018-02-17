@@ -56,7 +56,7 @@ class ReaderTest {
     @Test
     fun readerTest() {
         val mr = MetadataReader(basePath)
-        val dr = DataReader(mr.readEPD(), mr.readSSD(), mr.readSPKTWE())
+        val dr = DataReader(mr.readEPD(), mr.readSSD(), mr.readSPKTWE(), mr.readETI())
 
         var segment = dr.readChannelWaveform(1, 0 until 100)
         assert(segment.data[0] almostEqual 6.793299)
@@ -139,6 +139,25 @@ class ReaderTest {
         assert(spikeChannel5Segment1[2].waveform[4] almostEqual -1.438469)
         assert(spikeChannel5Segment1[2].waveform[5] almostEqual -6.500218)
         assert(spikeChannel5Segment1[2].waveform[6] almostEqual -3.021892)
+
+        val trials = dr.readTrials()
+
+        assert(trials[0].trialNumber == 1)
+        assert(trials[0].orientation == 0)
+        assert(trials[0].trialStartOffset == 124575)
+        assert(trials[0].trialEndOffset == 258180)
+
+        assert(trials[1].trialNumber == 2)
+        assert(trials[1].orientation == 90)
+        assert(trials[1].trialStartOffset == 274748)
+        assert(trials[1].trialEndOffset == 408353)
+
+        assert(trials[100].trialNumber == 101)
+        assert(trials[100].orientation == 0)
+        assert(trials[100].trialStartOffset == 15141871)
+        assert(trials[100].stimOnOffset == 15173937)
+        assert(trials[100].stimOffOffset == 15259445)
+        assert(trials[100].trialEndOffset == 15275477)
 
     }
 

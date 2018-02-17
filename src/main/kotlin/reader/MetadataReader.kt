@@ -1,5 +1,6 @@
 package reader
 
+import model.metadata.EtiMetadata
 import model.metadata.SpikeMetadata
 import model.metadata.SpikeSortedMetadata
 import model.metadata.WaveformMetadata
@@ -21,16 +22,18 @@ class MetadataReader {
     private val ssdPath: String
     private val spktwePath: String
     private val epdPath: String
+    private val etiPath: String
 
 
     constructor(basepath: String) {
         val file = File(basepath)
         val paths = mutableListOf<String>()
-        file.walkTopDown().filter { it.name.endsWith(".epd") or it.name.endsWith(".spktwe") or it.name.endsWith("ssd") }.map { it.canonicalPath }.toCollection(paths)
+        file.walkTopDown().filter { it.name.endsWith(".epd") or it.name.endsWith(".spktwe") or it.name.endsWith("ssd") or it.name.endsWith("eti") }.map { it.canonicalPath }.toCollection(paths)
 
         ssdPath = paths.first { it.endsWith(".ssd") }
         spktwePath = paths.first { it.endsWith("spktwe") }
         epdPath = paths.first { it.endsWith("epd") }
+        etiPath = paths.first { it.endsWith("eti") }
 
     }
 
@@ -160,6 +163,9 @@ class MetadataReader {
                 eventSize, spikeTimestampPath, unitStatisticsPath, eventTimestampPath, eventCodesPath)
     }
 
+    fun readETI(): EtiMetadata {
+        return EtiMetadata(etiPath)
+    }
 
     private fun basePath(relativeTo: String) = relativeTo.replaceAfterLast(File.separator, "")
 

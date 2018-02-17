@@ -5,9 +5,10 @@ import java.math.BigDecimal
 /**
  * Created by robert on 2/15/18.
  * Each value in the result float array represents the mean amplitude for a particular trial
+ * The Collection from Collection<FloatArray> represents all the channels
  *
  */
-class EntireChannelMeanAmplitudeFeatureExtractor(portion: FloatArray) : FeatureExtractor<FloatArray, FloatArray> {
+class EntireChannelMeanAmplitude(portion: FloatArray) : FeatureExtractor<FloatArray, FloatArray> {
     override fun extract(data: Collection<FloatArray>): FloatArray {
         val result = ArrayList<Float>(data.size)
 
