@@ -14,7 +14,7 @@ import java.nio.ByteOrder
 /**
  * Created by robert on 1/13/18.
  */
-class DataReader(private val waveformMetadata: WaveformMetadata, private val spikeSortedMetadata: SpikeSortedMetadata, private val spikeMetadata: SpikeMetadata, private val etiMetadata: EtiMetadata) : Reader {
+class DataReader(private val waveformMetadata: WaveformMetadata, private val spikeSortedMetadata: SpikeSortedMetadata, val spikeMetadata: SpikeMetadata, private val etiMetadata: EtiMetadata) : Reader {
 
 
     private fun readFloatBinary(filePath: String): FloatArray {
@@ -64,11 +64,30 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
         return result.toIntArray()
     }
 
+    private fun readIntBinary(filePath: String, between: IntRange): IntArray {
+        val result = arrayListOf<Int>()
+
+        val f = File(filePath)
+        f.inputStream().channel.use {
+            val bb = ByteBuffer.allocate(4 * (between.last - between.first + 1))
+            it.position((between.first * 4).toLong())
+            bb.order(ByteOrder.LITTLE_ENDIAN)
+            while (it.read(bb) > 0 && it.position() <= 4 * between.last + 4) {
+                bb.flip()
+                (0 until bb.limit() step 4).mapTo(result) { bb.getInt(it) }
+                bb.clear()
+            }
+        }
+        return result.toIntArray()
+    }
+
     override fun readChannelWaveform(channel: Int): FloatArray = readFloatBinary(waveformMetadata.basePath + waveformMetadata.channelPaths[channel - 1])
 
     private fun channelSpikeCountUntil(channel: Int): Int {
-        return if (channel > 0 && channel < spikeMetadata.spikesInEachChannel.size) {
+        return if (channel > 0 && channel <= spikeMetadata.spikesInEachChannel.size) {
             spikeMetadata.spikesInEachChannel.take(channel - 1).sum()
+        } else if(channel > spikeMetadata.spikesInEachChannel.size ){
+            spikeMetadata.spikesInEachChannel.sum()
         } else {
             0
         }
@@ -120,22 +139,26 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
     }
 
     override fun readTrials(): List<Trial> {
-            val result = mutableListOf<Trial>()
-            val eti = File(etiMetadata.path)
-            val timestamps = readIntBinary(spikeMetadata.basePath + spikeMetadata.eventTimestampsPath)
-            eti.readLines().drop(4).mapIndexedTo(result,
-                {index, line ->
+        val result = mutableListOf<Trial>()
+        val eti = File(etiMetadata.path)
+        val timestamps = readIntBinary(spikeMetadata.basePath + spikeMetadata.eventTimestampsPath)
+        eti.readLines().drop(4).mapIndexedTo(result,
+                { index, line ->
                     val strings = line.split(",")
                     val timestampIndex = 4 * index
                     Trial(trialNumber = strings[0].toInt(), orientation = strings[3].split(" ").last().toInt(),
                             trialStartOffset = timestamps[timestampIndex],
-                            stimOnOffset = timestamps[timestampIndex+1],
-                            stimOffOffset = timestamps[timestampIndex+2],
-                            trialEndOffset = timestamps[timestampIndex+3])
+                            stimOnOffset = timestamps[timestampIndex + 1],
+                            stimOffOffset = timestamps[timestampIndex + 2],
+                            trialEndOffset = timestamps[timestampIndex + 3])
                 }
-            )
+        )
         return result
     }
 
     override fun numberOfChannels() = waveformMetadata.eegChannels
+
+    override fun readSpikeTimestamps(): List<IntArray> = (1..spikeMetadata.storedChannels).map {
+        readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath, channelSpikeCountUntil(it)..channelSpikeCountUntil(it + 1))
+    }
 }

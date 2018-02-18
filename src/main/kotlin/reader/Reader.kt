@@ -17,6 +17,8 @@ interface Reader {
 
     fun readChannelSpikes(channel: Int, between: IntRange): List<Spike>
 
+    fun readSpikeTimestamps(): List<IntArray>
+
     fun readTrials(): List<Trial>
 
     fun numberOfChannels(): Int
