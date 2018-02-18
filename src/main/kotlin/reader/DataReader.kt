@@ -124,16 +124,19 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
     override fun readChannelSpikes(channel: Int, between: IntRange): List<Spike> {
         val result = mutableListOf<Spike>()
 
-        val spikeCount = spikeMetadata.waveformLength * (channelSpikeCountUntil(channel) + between.first)
-        val spikew = readFloatBinary(spikeMetadata.basePath + spikeMetadata.spikeWaveformPath,
-                spikeCount until (spikeCount + spikeMetadata.waveformLength * (between.last - between.first + 1)))
-        val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath)
-        for (spikeIndex in 0 until spikew.size step spikeMetadata.waveformLength) {
-            val spikeData = mutableListOf<Float>()
-            (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
-                spikew[spikeIndex + it]
+        if(between.last - between.first > 0) {
+
+            val spikeCount = spikeMetadata.waveformLength * (channelSpikeCountUntil(channel) + between.first)
+            val spikew = readFloatBinary(spikeMetadata.basePath + spikeMetadata.spikeWaveformPath,
+                    spikeCount until (spikeCount + spikeMetadata.waveformLength * (between.last - between.first + 1)))
+            val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath)
+            for (spikeIndex in 0 until spikew.size step spikeMetadata.waveformLength) {
+                val spikeData = mutableListOf<Float>()
+                (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
+                    spikew[spikeIndex + it]
+                }
+                result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength] / waveformMetadata.samplingFrequency, spikeData.toFloatArray()))
             }
-            result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength] / waveformMetadata.samplingFrequency, spikeData.toFloatArray()))
         }
         return result.toList()
     }
@@ -159,6 +162,6 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
     override fun numberOfChannels() = waveformMetadata.eegChannels
 
     override fun readSpikeTimestamps(): List<IntArray> = (1..spikeMetadata.storedChannels).map {
-        readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath, channelSpikeCountUntil(it)..channelSpikeCountUntil(it + 1))
+        readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath, channelSpikeCountUntil(it) until channelSpikeCountUntil(it + 1))
     }
 }
