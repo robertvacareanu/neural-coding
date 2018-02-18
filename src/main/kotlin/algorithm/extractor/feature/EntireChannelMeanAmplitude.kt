@@ -1,6 +1,10 @@
 package algorithm.extractor.feature
 
+import model.TrialData
+import model.metadata.SpikeMetadata
 import java.math.BigDecimal
+import java.math.RoundingMode
+import kotlin.math.abs
 
 /**
  * Created by robert on 2/15/18.
@@ -8,15 +12,26 @@ import java.math.BigDecimal
  * The Collection from Collection<FloatArray> represents all the channels
  *
  */
-class EntireChannelMeanAmplitude(portion: FloatArray) : FeatureExtractor<FloatArray, FloatArray> {
-    override fun extract(data: Collection<FloatArray>): FloatArray {
-        val result = ArrayList<Float>(data.size)
+class EntireChannelMeanAmplitude(private val spikeMetadata: SpikeMetadata) : FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>> {
+    override fun extract(data: Collection<TrialData>): List<Pair<Int, FloatArray>> {
+        val result = ArrayList<Pair<Int, FloatArray>>()
+        data.mapTo(result) { trial ->
+            val means = FloatArray(spikeMetadata.storedChannels)
+            (0 until spikeMetadata.storedChannels).forEach {
+                if(trial.spikeData[it].isNotEmpty()) {
+                    val nominator = trial.spikeData[it].fold(BigDecimal.ZERO) { acc, spike ->
+                        acc.add(BigDecimal.valueOf(abs(spike.waveform[spikeMetadata.waveformSpikeOffset].toDouble())))
+                    }
+                    val denominator = BigDecimal.valueOf(trial.spikeData[it].size.toDouble())
+                    means[it] = nominator.divide(denominator, 6, RoundingMode.HALF_UP).toFloat()
+                } else {
+                    means[it] = 0.0f
+                }
+            }
+            Pair(trial.orientation, means)
+        }
 
-        data.mapTo(result, { floats: FloatArray ->
-            floats.fold(BigDecimal.ZERO, { acc, number ->
-                acc.add(BigDecimal.valueOf(number.toDouble()))
-            }).divide(BigDecimal.valueOf(floats.size.toDouble())).toFloat() })
 
-        return result.toFloatArray()
+        return result
     }
 }
