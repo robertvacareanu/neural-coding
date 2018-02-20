@@ -149,7 +149,8 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
                 { index, line ->
                     val strings = line.split(",")
                     val timestampIndex = 4 * index
-                    Trial(trialNumber = strings[0].toInt(), orientation = strings[3].split(" ").last().toInt(),
+                    Trial(trialNumber = strings[0].toInt(),
+                            orientation = strings[3].split(" ").last().toInt(),
                             trialStartOffset = timestamps[timestampIndex],
                             stimOnOffset = timestamps[timestampIndex + 1],
                             stimOffOffset = timestamps[timestampIndex + 2],
