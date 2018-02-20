@@ -12,7 +12,7 @@ import kotlin.math.abs
  * The Collection from Collection<FloatArray> represents all the channels
  *
  */
-class EntireChannelMeanAmplitude(private val spikeMetadata: SpikeMetadata) : FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>> {
+class MeanAmplitude(private val spikeMetadata: SpikeMetadata) : FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>> {
     override fun extract(data: Collection<TrialData>): List<Pair<Int, FloatArray>> {
         val result = ArrayList<Pair<Int, FloatArray>>()
         data.mapTo(result) { trial ->

@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/neural-coding.iml" filepath="$PROJECT_DIR$/.idea/modules/neural-coding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Cloned-neural-coding.iml" filepath="$PROJECT_DIR$/.idea/modules/Cloned-neural-coding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/neural-coding.iml" filepath="$PROJECT_DIR$/neural-coding.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/neural-coding_main.iml" filepath="$PROJECT_DIR$/.idea/modules/neural-coding_main.iml" group="neural-coding" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/neural-coding_test.iml" filepath="$PROJECT_DIR$/.idea/modules/neural-coding_test.iml" group="neural-coding" />
     </modules>
