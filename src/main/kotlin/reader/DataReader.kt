@@ -135,7 +135,7 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
                 (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
                     spikew[spikeIndex + it]
                 }
-                result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength] / waveformMetadata.samplingFrequency, spikeData.toFloatArray()))
+                result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength].toFloat(), spikeData.toFloatArray()))
             }
         }
         return result.toList()
