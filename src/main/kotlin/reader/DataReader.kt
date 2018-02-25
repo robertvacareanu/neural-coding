@@ -13,6 +13,7 @@ import java.nio.ByteOrder
 
 /**
  * Created by robert on 1/13/18.
+ * Able to read retrieve the necessary data for performing data and feature extraction
  */
 class DataReader(private val waveformMetadata: WaveformMetadata, private val spikeSortedMetadata: SpikeSortedMetadata, val spikeMetadata: SpikeMetadata, private val etiMetadata: EtiMetadata) : Reader {
 
@@ -86,7 +87,7 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
     private fun channelSpikeCountUntil(channel: Int): Int {
         return if (channel > 0 && channel <= spikeMetadata.spikesInEachChannel.size) {
             spikeMetadata.spikesInEachChannel.take(channel - 1).sum()
-        } else if(channel > spikeMetadata.spikesInEachChannel.size ){
+        } else if (channel > spikeMetadata.spikesInEachChannel.size) {
             spikeMetadata.spikesInEachChannel.sum()
         } else {
             0
@@ -102,15 +103,16 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
 
         val result = mutableListOf<Spike>()
 
-        val spikeCount = spikeMetadata.waveformLength * channelSpikeCountUntil(channel)
-        val spikew = readFloatBinary(spikeMetadata.basePath + spikeMetadata.spikeWaveformPath, spikeCount until (spikeCount + spikeMetadata.waveformLength * spikeMetadata.spikesInEachChannel[channel - 1]))
-        val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath)
+        val spikeCountUntil = channelSpikeCountUntil(channel)
+        val spikeCountOffset = spikeMetadata.waveformLength * spikeCountUntil
+        val spikew = readFloatBinary(spikeMetadata.basePath + spikeMetadata.spikeWaveformPath, spikeCountOffset until (spikeCountOffset + spikeMetadata.waveformLength * spikeMetadata.spikesInEachChannel[channel - 1]))
+        val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath, spikeCountUntil until (spikeCountUntil + spikeMetadata.spikesInEachChannel[channel - 1]))
         for (spikeIndex in 0 until spikew.size step spikeMetadata.waveformLength) {
             val spikeData = mutableListOf<Float>()
             (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
                 spikew[spikeIndex + it]
             }
-            result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength] / waveformMetadata.samplingFrequency, spikeData.toFloatArray()))
+            result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength].toFloat(), spikeData.toFloatArray()))
         }
         return result.toList()
     }
@@ -124,12 +126,14 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
     override fun readChannelSpikes(channel: Int, between: IntRange): List<Spike> {
         val result = mutableListOf<Spike>()
 
-        if(between.last - between.first > 0) {
+        if (between.last - between.first > 0) {
 
-            val spikeCount = spikeMetadata.waveformLength * (channelSpikeCountUntil(channel) + between.first)
+            val spikeCountUntil = channelSpikeCountUntil(channel)
+            val spikeCount = spikeMetadata.waveformLength * (spikeCountUntil + between.first)
             val spikew = readFloatBinary(spikeMetadata.basePath + spikeMetadata.spikeWaveformPath,
                     spikeCount until (spikeCount + spikeMetadata.waveformLength * (between.last - between.first + 1)))
-            val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath)
+
+            val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath, spikeCountUntil + between.first until (spikeCountUntil + between.last + 1))
             for (spikeIndex in 0 until spikew.size step spikeMetadata.waveformLength) {
                 val spikeData = mutableListOf<Float>()
                 (0 until spikeMetadata.waveformLength).mapTo(spikeData) {

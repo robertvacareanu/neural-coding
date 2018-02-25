@@ -102,6 +102,12 @@ class ReaderTest {
         assert(spikeChannel1[0].waveform[0] almostEqual 0.565429)
         assert(spikeChannel1[1].waveform[0] almostEqual 20.09776)
         assert(spikeChannel1[1].waveform[1] almostEqual 26.48896)
+        assert(spikeChannel1[17080].waveform[0] almostEqual 8.453665)
+        assert(spikeChannel1[17080].waveform[38] almostEqual 22.14343)
+        assert(spikeChannel1[0].timestamp almostEqual 25625)
+        assert(spikeChannel1[1].timestamp almostEqual 29160)
+        assert(spikeChannel1[2].timestamp almostEqual 30044)
+        assert(spikeChannel1[17080].timestamp almostEqual 36351520)
 
         val spikeChannel5 = dr.readChannelSpikes(5)
         assert(spikeChannel5[0].waveform[0] almostEqual 22.97374)
@@ -111,6 +117,9 @@ class ReaderTest {
         assert(spikeChannel5[0].waveform[4] almostEqual 4.83482)
         assert(spikeChannel5[0].waveform[5] almostEqual 1.805182)
         assert(spikeChannel5[0].waveform[6] almostEqual 12.34129)
+        assert(spikeChannel5[0].timestamp almostEqual 106605)
+
+        assert(spikeChannel5[1].timestamp almostEqual 126545)
 
         assert(spikeChannel5[4].waveform[0] almostEqual 11.16329)
         assert(spikeChannel5[4].waveform[1] almostEqual 27.94641)
@@ -119,7 +128,7 @@ class ReaderTest {
         assert(spikeChannel5[4].waveform[4] almostEqual -1.438469)
         assert(spikeChannel5[4].waveform[5] almostEqual -6.500218)
         assert(spikeChannel5[4].waveform[6] almostEqual -3.021892)
-
+        assert(spikeChannel5[4].timestamp almostEqual 150036)
 
         val spikeChannel5Segment = dr.readChannelSpikes(5, 1 until 10)
 
@@ -130,6 +139,8 @@ class ReaderTest {
         assert(spikeChannel5Segment[3].waveform[4] almostEqual -1.438469)
         assert(spikeChannel5Segment[3].waveform[5] almostEqual -6.500218)
         assert(spikeChannel5Segment[3].waveform[6] almostEqual -3.021892)
+        println(spikeChannel5Segment[3].timestamp)
+        assert(spikeChannel5Segment[3].timestamp almostEqual 150036)
 
         val spikeChannel5Segment1 = dr.readChannelSpikes(5, 2 until 10)
 
@@ -159,61 +170,6 @@ class ReaderTest {
         assert(trials[100].stimOnOffset == 15173937)
         assert(trials[100].stimOffOffset == 15259445)
         assert(trials[100].trialEndOffset == 15275477)
-
-    }
-
-    @Test
-    fun betwenStim() {
-
-
-        val mr = MetadataReader(basePath)
-        val dr = DataReader(mr.readEPD(), mr.readSSD(), mr.readSPKTWE(), mr.readETI())
-
-        val trials = dr.readTrials()
-
-        val betweenStim = BetweenStim(dr)
-
-        val testData = betweenStim.extractData(listOf(trials[0], trials[1]))
-
-        assert(testData[0].orientation == 0)
-
-        assert(testData[0].spikeData[0][0].waveform[0] almostEqual -12.0737)
-        assert(testData[0].spikeData[0][0].waveform[1] almostEqual -5.02141)
-        assert(testData[0].spikeData[0][1].waveform[0] almostEqual 66.00766)
-        assert(testData[0].spikeData[0][2].waveform[0] almostEqual 4.630025)
-        assert(testData[0].spikeData[0][3].waveform[0] almostEqual 33.55904)
-        assert(testData[0].spikeData[0][4].waveform[0] almostEqual 20.03858)
-        assert(testData[0].spikeData[0][5].waveform[0] almostEqual 21.91661)
-        assert(testData[0].spikeData[0][6].waveform[0] almostEqual 7.803526)
-        assert(testData[0].spikeData[0][60].waveform[0] almostEqual 29.15911)
-        assert(testData[0].spikeData[0][106].waveform[0] almostEqual -2.86156)
-        assert(testData[0].spikeData[0][106].waveform[1] almostEqual 0.2091425)
-        assert(testData[0].spikeData[0][106].waveform[2] almostEqual 0.5920082)
-        assert(testData[0].spikeData[0][106].waveform[3] almostEqual 15.99877)
-        assert(testData[0].spikeData[0][106].waveform[4] almostEqual 13.9175)
-        assert(testData[0].spikeData[0][106].waveform[5] almostEqual 33.73422)
-        assert(testData[0].spikeData[0][106].waveform[6] almostEqual 16.05228)
-        assert(testData[0].spikeData[0][106].waveform[7] almostEqual 24.42965)
-        assert(testData[0].spikeData[0][106].waveform[32] almostEqual 26.06567)
-        assert(testData[0].spikeData[0][106].waveform[33] almostEqual 15.64846)
-        assert(testData[0].spikeData[0][106].waveform[34] almostEqual 24.88918)
-        assert(testData[0].spikeData[0][106].waveform[35] almostEqual 14.19616)
-        assert(testData[0].spikeData[0][106].waveform[36] almostEqual 13.16541)
-        assert(testData[0].spikeData[0][106].waveform[37] almostEqual 15.13039)
-        assert(testData[0].spikeData[0][106].waveform[38] almostEqual 20.92668)
-
-        assert(testData[0].spikeData[1][0].waveform[0] almostEqual -0.03298917)
-
-        assert(testData[1].orientation == 90)
-        assert(testData[1].spikeData[0][0].waveform[0] almostEqual -18.49579)
-        assert(testData[1].spikeData[0][0].waveform[1] almostEqual -11.17014)
-        assert(testData[1].spikeData[0][1].waveform[0] almostEqual 4.989871)
-        assert(testData[1].spikeData[0][1].waveform[1] almostEqual -4.603093)
-        assert(testData[1].spikeData[1][0].waveform[0] almostEqual 31.23073)
-        assert(testData[1].spikeData[1][0].waveform[1] almostEqual 22.10519)
-        assert(testData[1].spikeData[1][1].waveform[0] almostEqual -6.620437)
-        assert(testData[1].spikeData[1][1].waveform[1] almostEqual -17.91105)
-
 
     }
 

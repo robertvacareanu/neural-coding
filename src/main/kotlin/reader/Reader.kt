@@ -6,6 +6,7 @@ import model.Trial
 
 /**
  * Created by robert on 1/13/18.
+ * Provides ways of completely accessing the data of each trial: orientation and spikes for each channel
  */
 interface Reader {
 

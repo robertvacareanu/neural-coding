@@ -5,6 +5,7 @@ import model.metadata.SpikeMetadata
 
 /**
  * Created by robert on 2/20/18.
+ * Each value in the result float array represents the number of spikes per second for a particular trial
  */
 class SpikesPerSec(private val spikeMetadata: SpikeMetadata) : FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>> {
     override fun extract(data: Collection<TrialData>): List<Pair<Int, FloatArray>> {
