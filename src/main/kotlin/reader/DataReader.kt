@@ -10,7 +10,6 @@ import model.metadata.WaveformMetadata
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.math.absoluteValue
 
 /**
  * Created by robert on 1/13/18.
@@ -113,9 +112,6 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
             (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
                 spikew[spikeIndex + it]
             }
-            if(times[spikeIndex / spikeMetadata.waveformLength] == 19232492) {
-                println("HER123132E")
-            }
             result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength].toDouble(), spikeData.toFloatArray()))
         }
         return result.toList()
@@ -138,47 +134,16 @@ class DataReader(private val waveformMetadata: WaveformMetadata, private val spi
                     spikeCount until (spikeCount + spikeMetadata.waveformLength * (between.last - between.first + 1)))
 
             val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath, spikeCountUntil + between.first until (spikeCountUntil + between.last + 1))
-////            if((spikew[1].absoluteValue - (-11.35969).absoluteValue) < 0.0000001) {
-////                println("$channel HERE ${between.first}, ${between.last}, ${spikeCount}, ${spikeCount + spikeMetadata.waveformLength * (between.last - between.first + 1)}, ${spikew[1]}, ${(spikew[1].absoluteValue - (-11.35969).absoluteValue)}")
-////            }
-//            if((times.size == 2) and (channel == 7)) {
-//                println("${times[0]}, ${times[1]}, ${spikew[0]}, ${spikew[1]}")
-//            }
             for (spikeIndex in 0 until spikew.size step spikeMetadata.waveformLength) {
                 val spikeData = mutableListOf<Float>()
                 (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
                     spikew[spikeIndex + it]
                 }
                 result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength].toDouble(), spikeData.toFloatArray()))
-//                if((times.size == 2) and (channel == 7)) {
-//                    println("${times[0]}, ${times[1]}, ${spikew[0]}, ${spikew[1]} ${result.last().timestamp} ${result.first().timestamp} ${19232491.toFloat()}")
-//                }
             }
         }
         return result.toList()
     }
-
-//    override fun readChannelSpikes(channel: Int, between: IntRange): List<Spike> {
-//        val result = mutableListOf<Spike>()
-//
-//        if (between.last - between.first > 0) {
-//
-//            val spikeCountUntil = channelSpikeCountUntil(channel)
-//            val spikeCount = spikeMetadata.waveformLength * (spikeCountUntil + between.first)
-//            val spikew = readFloatBinary(spikeMetadata.basePath + spikeMetadata.spikeWaveformPath,
-//                    spikeCount until (spikeCount + spikeMetadata.waveformLength * (between.last - between.first + 1)))
-//
-//            val times = readIntBinary(spikeMetadata.basePath + spikeMetadata.spikeTimestampsPath)
-//            for (spikeIndex in 0 until spikew.size step spikeMetadata.waveformLength) {
-//                val spikeData = mutableListOf<Float>()
-//                (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
-//                    spikew[spikeIndex + it]
-//                }
-//                result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength].toFloat(), spikeData.toFloatArray()))
-//            }
-//        }
-//        return result.toList()
-//    }
 
     override fun readTrials(): List<Trial> {
         val result = mutableListOf<Trial>()

@@ -13,20 +13,16 @@ import reader.DataReader
  * Trial start (t1), Stim ON (t2), Stim OFF (t3), Trial end (t4)
  *
  */
-sealed class BetweenTimestamps(private val dataReader: DataReader) : DataExtractor<List<Trial>, List<TrialData>> {
+sealed class BetweenTimestamps(private val dataReader: DataReader, val startOffset: Trial.() -> Int, val endOffset: Trial.() -> Int) : DataExtractor<List<Trial>, List<TrialData>> {
 
     private val trialDataSpikeTimestamps by lazy { dataReader.readSpikeTimestamps() }
-
-    abstract fun eventStart(trial: Trial): Int
-
-    abstract fun eventEnd(trial: Trial): Int
 
     override fun extractData(data: List<Trial>): List<TrialData> {
         return data.map { trial ->
             val firstLastSpike = mutableMapOf<Int, Pair<Int, Int>>()
             (1..dataReader.numberOfChannels()).forEachIndexed { index, _ ->
-                val indexFirstSpike = trialDataSpikeTimestamps[index].indexOfFirst { it > eventStart(trial) }
-                val indexLastSpike = trialDataSpikeTimestamps[index].indexOfFirst { it > eventEnd(trial) }
+                val indexFirstSpike = trialDataSpikeTimestamps[index].indexOfFirst { it > startOffset(trial) }
+                val indexLastSpike = trialDataSpikeTimestamps[index].indexOfFirst { it > endOffset(trial) }
                 firstLastSpike[index] = Pair(indexFirstSpike, indexLastSpike)
             }
             val trialDataChannels = mutableListOf<Array<Spike>>()
@@ -43,52 +39,28 @@ sealed class BetweenTimestamps(private val dataReader: DataReader) : DataExtract
  * Between two events
  * In this case, the data considered is from t3 until t4
  */
-class AfterStim(dataReader: DataReader) : BetweenTimestamps(dataReader) {
-    override fun eventStart(trial: Trial): Int = trial.stimOffOffset
-
-    override fun eventEnd(trial: Trial): Int = trial.trialEndOffset
-}
+class AfterStim(dataReader: DataReader) : BetweenTimestamps(dataReader, {stimOffOffset}, {trialEndOffset})
 
 /**
  * Between two events
  * In this case, the data considered is from t1 until t2
  */
-class BeforeStim(dataReader: DataReader) : BetweenTimestamps(dataReader) {
-    override fun eventStart(trial: Trial): Int = trial.trialStartOffset
-
-    override fun eventEnd(trial: Trial): Int = trial.stimOnOffset
-}
+class BeforeStim(dataReader: DataReader) : BetweenTimestamps(dataReader, startOffset = { trialStartOffset }, endOffset = { stimOnOffset })
 
 /**
  * Between two events
  * In this case, the data considered is from t2  until t3
  */
-class BetweenStim(dataReader: DataReader) : BetweenTimestamps(dataReader) {
-    override fun eventStart(trial: Trial): Int = trial.stimOnOffset
-
-    override fun eventEnd(trial: Trial): Int = trial.stimOffOffset
-}
+class BetweenStim(dataReader: DataReader) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOffOffset })
 
 /**
  * In this case, the data considered is from t2 until t2 + howMany
  */
-class AfterStimOn(dataReader: DataReader, private val howMany: Int) : BetweenTimestamps(dataReader) {
-    override fun eventStart(trial: Trial): Int = trial.stimOnOffset
-
-    override fun eventEnd(trial: Trial): Int = trial.stimOnOffset + (4 * howMany)
-}
+class AfterStimOn(dataReader: DataReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOnOffset + 4 * howMany })
 
 /**
  * In this case, the data considered is from t3 until t3 + howMany
  */
-class AfterStimOff(dataReader: DataReader, private val howMany: Int) : BetweenTimestamps(dataReader) {
-    override fun eventStart(trial: Trial): Int = trial.stimOffOffset
+class AfterStimOff(dataReader: DataReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOffOffset }, { stimOffOffset + 4 * howMany })
 
-    override fun eventEnd(trial: Trial): Int = trial.stimOffOffset + (4 * howMany)
-}
-
-class RandomAfterStimOn(dataReader: DataReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader) {
-    override fun eventStart(trial: Trial) = trial.stimOnOffset + 4 * howManyAfterSecond
-
-    override fun eventEnd(trial: Trial) = trial.stimOnOffset + 4 * (howMannyAfterFirst + howManyAfterSecond)
-}
+class RandomAfterStimOn(dataReader: DataReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { stimOnOffset + 4 * howManyAfterSecond }, { stimOnOffset + 4 * (howMannyAfterFirst + howManyAfterSecond) })

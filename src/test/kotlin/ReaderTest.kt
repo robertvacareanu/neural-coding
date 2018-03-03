@@ -139,7 +139,6 @@ class ReaderTest {
         assert(spikeChannel5Segment[3].waveform[4] almostEqual -1.438469)
         assert(spikeChannel5Segment[3].waveform[5] almostEqual -6.500218)
         assert(spikeChannel5Segment[3].waveform[6] almostEqual -3.021892)
-        println(spikeChannel5Segment[3].timestamp)
         assert(spikeChannel5Segment[3].timestamp almostEqual 150036)
 
         val spikeChannel5Segment1 = dr.readChannelSpikes(5, 2 until 10)
