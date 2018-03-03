@@ -7,6 +7,6 @@ package model
  *  - waveform, which represents the signal for this spike
  */
 class Spike(
-        val timestamp: Float,
+        val timestamp: Double,
         val waveform: FloatArray
 )
