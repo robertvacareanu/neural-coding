@@ -14,8 +14,10 @@ class SpikesPerSec(private val spikeMetadata: SpikeMetadata) : FeatureExtractor<
         data.mapTo(result) { trial ->
             val spikePerSec = FloatArray(spikeMetadata.storedChannels)
             (0 until spikeMetadata.storedChannels).forEach {
-                if(trial.spikeData[it].isNotEmpty()) {
-                    spikePerSec[it] = trial.spikeData[it].size / ((trial.spikeData[it][trial.spikeData[it].size-1].timestamp - trial.spikeData[it][0].timestamp)/spikeMetadata.waveformInternalSamplingFrequency)
+                if(trial.spikeData[it].size > 1) {
+                    spikePerSec[it] = (trial.spikeData[it].size / ((trial.spikeData[it][trial.spikeData[it].size-1].timestamp - trial.spikeData[it][0].timestamp)/spikeMetadata.waveformInternalSamplingFrequency)).toFloat()
+                } else {
+                    spikePerSec[it] = 0f
                 }
             }
             Pair(trial.orientation, spikePerSec)
