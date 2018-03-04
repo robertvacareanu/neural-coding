@@ -151,6 +151,22 @@ class ReaderTest {
         assert(spikeChannel5Segment1[2].waveform[5] almostEqual -6.500218)
         assert(spikeChannel5Segment1[2].waveform[6] almostEqual -3.021892)
 
+        val spikeChannel32 = dr.readChannelSpikes(32)
+        assert(spikeChannel32[spikeChannel32.size-2].waveform[27] almostEqual -4.733287)
+        assert(spikeChannel32[spikeChannel32.size-2].waveform[32] almostEqual 21.27319)
+        assert(spikeChannel32[spikeChannel32.size-2].waveform[36] almostEqual 24.20261)
+        assert(spikeChannel32[spikeChannel32.size-2].waveform[38] almostEqual 14.43312)
+
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[0] almostEqual 12.50843)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[1] almostEqual 13.7697)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[19] almostEqual -51.57431)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[30] almostEqual 21.27319)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[32] almostEqual 14.75234)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[35] almostEqual 22.0056)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[36] almostEqual 14.43312)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[37] almostEqual 11.9069)
+        assert(spikeChannel32[spikeChannel32.size-1].waveform[38] almostEqual -0.576301)
+
         val trials = dr.readTrials()
 
         assert(trials[0].trialNumber == 1)

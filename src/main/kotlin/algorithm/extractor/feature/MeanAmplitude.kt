@@ -9,7 +9,7 @@ import kotlin.math.abs
 /**
  * Created by robert on 2/15/18.
  * Each value in the result float array represents the mean amplitude for a particular trial
- * The Collection from Collection<FloatArray> represents all the channels
+ * The Collection from Collection<TrialData> represents all the trials having each one the recorded data for each channel
  *
  */
 class MeanAmplitude(private val spikeMetadata: SpikeMetadata) : FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>> {
@@ -20,7 +20,7 @@ class MeanAmplitude(private val spikeMetadata: SpikeMetadata) : FeatureExtractor
             (0 until spikeMetadata.storedChannels).forEach {
                 if(trial.spikeData[it].isNotEmpty()) {
                     val nominator = trial.spikeData[it].fold(BigDecimal.ZERO) { acc, spike ->
-                        acc.add(BigDecimal.valueOf(abs(spike.waveform[spikeMetadata.waveformSpikeOffset].toDouble())))
+                        acc + (BigDecimal.valueOf(abs(spike.waveform[spikeMetadata.waveformSpikeOffset].toDouble())))
                     }
                     val denominator = BigDecimal.valueOf(trial.spikeData[it].size.toDouble())
                     means[it] = nominator.divide(denominator, 6, RoundingMode.HALF_UP).toFloat()

@@ -13,7 +13,7 @@ fun exportCSV(data: List<Pair<Int, FloatArray>>, name: String) {
         }
     }
     File("${name}_Results").bufferedWriter().use { br ->
-        br.append(data.map { it.first/45.0 }.joinToString())
+        br.append(data.map { it.first/45.0 }.joinToString(","))
 
     }
 }
