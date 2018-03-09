@@ -18,18 +18,22 @@ class MeanPerimeter(private val spikeMetadata: SpikeMetadata) : FeatureExtractor
             val orientation = it.orientation
             val channelsMeanPerimeter = mutableListOf<Float>()
             it.spikeData.mapTo(channelsMeanPerimeter) { channelSpikeArray ->
-                channelSpikeArray.fold(BigDecimal.ZERO) { acc, spike ->
-                    val perimeterForSpike = mutableListOf<Double>()
-                    (0 until (spike.waveform.size - 1)).mapTo(perimeterForSpike) {
-                        val timestampPoint1 = (spike.timestamp + it) / spikeMetadata.waveformInternalSamplingFrequency
-                        val timestampPoint2 = (spike.timestamp + it + 1) / spikeMetadata.waveformInternalSamplingFrequency
+                if(channelSpikeArray.isNotEmpty()) {
+                    channelSpikeArray.fold(BigDecimal.ZERO) { acc, spike ->
+                        val perimeterForSpike = mutableListOf<Double>()
+                        (0 until (spike.waveform.size - 1)).mapTo(perimeterForSpike) {
+                            val timestampPoint1 = (spike.timestamp + it) / spikeMetadata.waveformInternalSamplingFrequency
+                            val timestampPoint2 = (spike.timestamp + it + 1) / spikeMetadata.waveformInternalSamplingFrequency
 
-                        Point2D.distance(timestampPoint1, spike.waveform[it].toDouble(), timestampPoint2, spike.waveform[it + 1].toDouble())
-                    }
-                    acc.add(BigDecimal.valueOf(perimeterForSpike.fold(BigDecimal.ZERO) { spikeAcc, data ->
-                        spikeAcc.add(BigDecimal.valueOf(data))
-                    }.divide(BigDecimal.valueOf(perimeterForSpike.size.toLong()), 6, RoundingMode.HALF_UP).toDouble()))
-                }.toFloat()
+                            Point2D.distance(timestampPoint1, spike.waveform[it].toDouble(), timestampPoint2, spike.waveform[it + 1].toDouble())
+                        }
+                        acc.add(perimeterForSpike.fold(BigDecimal.ZERO) { spikeAcc, data ->
+                            spikeAcc.add(BigDecimal.valueOf(data))
+                        })
+                    }.divide(BigDecimal.valueOf(channelSpikeArray.size.toLong()), 6, RoundingMode.HALF_UP).toFloat()
+                } else {
+                    0f
+                }
             }
             result.add(Pair(orientation, channelsMeanPerimeter.toFloatArray()))
         }

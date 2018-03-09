@@ -1,15 +1,16 @@
 import algorithm.extractor.feature.MeanAmplitude
+import algorithm.extractor.feature.MeanPerimeter
 import algorithm.extractor.feature.SpikesPerSec
 import model.Spike
 import model.TrialData
 import model.metadata.SpikeMetadata
 import org.junit.Test
-import reader.DataReader
-import reader.MetadataReader
+import java.awt.geom.Point2D
 import kotlin.math.abs
 
 /**
  * Created by robert on 2/19/18.
+ * Tests for the functionality inside algorithm.extractor.feature
  */
 class FeatureExtractorTest {
 
@@ -84,7 +85,6 @@ class FeatureExtractorTest {
         val featureExtractor = MeanAmplitude(spikeMetadataDummy)
 
 
-
         val feature = featureExtractor.extract(constructTrialDataMock())
 
         assert(feature[0].first == 1)
@@ -132,4 +132,46 @@ class FeatureExtractorTest {
         assert(feature[1].second[2] almostEqual 3.333333)
 
     }
+
+    @Test
+    fun meanPerimeter() {
+        val spikeMetadataDummy = SpikeMetadata(
+                basePath = "",
+                version = 1.0f,
+                storedChannels = 1,
+                storedChannelNames = listOf(),
+                spikesInEachChannel = listOf(),
+                spikeTimesSampleFrequency = 0.0f,
+                recordingLength = 0,
+                waveformInternalSamplingFrequency = 1.0f,
+                waveformLength = 0,
+                waveformSpikeOffset = 5,
+                eventsSamplingFrequency = 0.0f,
+                events = 0,
+                spikeTimestampsPath = "",
+                spikeWaveformPath = "",
+                eventTimestampsPath = "",
+                eventCodesPath = ""
+        )
+
+        val t1Channel1Data = arrayOf(
+                Spike(1.0, floatArrayOf(0.0f, 15.0f, 12.0f, 22.0f, 31.0f)),
+                Spike(2.0, floatArrayOf(0.0f, 6.0f, 20.0f, 25.0f, 56.0f)),
+                Spike(3.0, floatArrayOf(10.0f, 20.0f, 50.0f, 23.0f, 0.5f))
+        )
+
+        val feature = MeanPerimeter(spikeMetadataDummy).extract(listOf(TrialData(1, listOf(t1Channel1Data))))
+
+        val result = Point2D.distance(1.0, t1Channel1Data[0][0].toDouble(), 2.0, t1Channel1Data[0][1].toDouble()) + Point2D.distance(2.0, t1Channel1Data[0][1].toDouble(), 3.0, t1Channel1Data[0][2].toDouble()) +
+                Point2D.distance(3.0, t1Channel1Data[0][2].toDouble(), 4.0, t1Channel1Data[0][3].toDouble()) + Point2D.distance(4.0, t1Channel1Data[0][3].toDouble(), 5.0, t1Channel1Data[0][4].toDouble()) +
+                Point2D.distance(2.0, t1Channel1Data[1][0].toDouble(), 3.0, t1Channel1Data[1][1].toDouble()) + Point2D.distance(3.0, t1Channel1Data[1][1].toDouble(), 4.0, t1Channel1Data[1][2].toDouble()) +
+                Point2D.distance(4.0, t1Channel1Data[1][2].toDouble(), 5.0, t1Channel1Data[1][3].toDouble()) + Point2D.distance(5.0, t1Channel1Data[1][3].toDouble(), 6.0, t1Channel1Data[1][4].toDouble()) +
+                Point2D.distance(3.0, t1Channel1Data[2][0].toDouble(), 4.0, t1Channel1Data[2][1].toDouble()) + Point2D.distance(4.0, t1Channel1Data[2][1].toDouble(), 5.0, t1Channel1Data[2][2].toDouble()) +
+                Point2D.distance(5.0, t1Channel1Data[2][2].toDouble(), 6.0, t1Channel1Data[2][3].toDouble()) + Point2D.distance(6.0, t1Channel1Data[2][3].toDouble(), 7.0, t1Channel1Data[2][4].toDouble())
+
+        assert(result / 3 almostEqual feature[0].second[0])
+
+
+    }
+
 }
