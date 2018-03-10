@@ -13,7 +13,7 @@ public class FireRateDataExporter extends DataExporter {
 
         List<TrialData> trialData = super.readTrialData(basePath);
 
-        SpikesPerSec spikesPerSec = new SpikesPerSec(super.getSpikeMetadata());
+        SpikesPerSec spikesPerSec = new SpikesPerSec(super.getSpikeMetadata().getWaveformInternalSamplingFrequency());
         List<Pair<Integer, float[]>> extractedData = spikesPerSec.extract(trialData);
 
         ArffConverter arffConverter = new ArffConverter(fileName);

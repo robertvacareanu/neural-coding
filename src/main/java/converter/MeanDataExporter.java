@@ -13,7 +13,7 @@ public class MeanDataExporter extends DataExporter {
 
         List<TrialData> trialData = super.readTrialData(basePath);
 
-        MeanAmplitude entireChannelMeanAmplitude = new MeanAmplitude(super.getSpikeMetadata());
+        MeanAmplitude entireChannelMeanAmplitude = new MeanAmplitude(super.getSpikeMetadata().getWaveformSpikeOffset());
         List<Pair<Integer, float[]>> extractedData = entireChannelMeanAmplitude.extract(trialData);
 
         ArffConverter arffConverter = new ArffConverter(arffMeanFile);
