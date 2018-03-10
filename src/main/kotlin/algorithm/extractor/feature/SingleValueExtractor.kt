@@ -50,14 +50,18 @@ class SpikesPerSec(private val waveformInternalSamplingFrequency: Float) : Singl
  * The Collection from Collection<TrialData> represents all the trials having each one the recorded data for each channel
  */
 class MeanPerimeter(waveformInternalSamplingFrequency: Float) : SingleValueExtractor({
-    it.fold(BigDecimal.ZERO) { acc, spike ->
-        val points = spike.waveform.mapIndexed { index, float -> Pair((spike.timestamp + index) / waveformInternalSamplingFrequency, float.toDouble()) }
-        val perimeterForSpike = mutableListOf<Double>()
-        (0 until points.size - 1).mapTo(perimeterForSpike) {
-            Point2D.distance(points[it].first, points[it].second, points[it + 1].first, points[it + 1].second)
-        }
-        acc + (perimeterForSpike.fold(BigDecimal.ZERO) { spikeAcc, data -> spikeAcc + BigDecimal.valueOf(data) })
-    }.divide(BigDecimal.valueOf(it.size.toLong()), 6, RoundingMode.HALF_UP).toFloat()
+    if(it.isNotEmpty()) {
+        it.fold(BigDecimal.ZERO) { acc, spike ->
+            val points = spike.waveform.mapIndexed { index, float -> Pair((spike.timestamp + index) / waveformInternalSamplingFrequency, float.toDouble()) }
+            val perimeterForSpike = mutableListOf<Double>()
+            (0 until points.size - 1).mapTo(perimeterForSpike) {
+                Point2D.distance(points[it].first, points[it].second, points[it + 1].first, points[it + 1].second)
+            }
+            acc + (perimeterForSpike.fold(BigDecimal.ZERO) { spikeAcc, data -> spikeAcc + BigDecimal.valueOf(data) })
+        }.divide(BigDecimal.valueOf(it.size.toLong()), 6, RoundingMode.HALF_UP).toFloat()
+    } else {
+        0f
+    }
 })
 
 /**
@@ -75,16 +79,4 @@ class MeanArea(waveformInternalSamplingFrequency: Float) : SingleValueExtractor(
         acc + (areaForSpike.fold(BigDecimal.ZERO) { spikeAcc, data -> spikeAcc + BigDecimal.valueOf(data) })
     }.divide(BigDecimal.valueOf(2), 6, RoundingMode.HALF_UP).abs().toFloat()
 
-})
-
-class MeanChange(waveformInternalSamplingFrequency: Float) : SingleValueExtractor({
-    it.fold(BigDecimal.ZERO) { acc, spike ->
-        val points = spike.waveform.mapIndexed { index, float -> Pair((spike.timestamp + index) / waveformInternalSamplingFrequency, float.toDouble()) }
-        val perimeterForSpike = mutableListOf<Double>()
-        (0 until points.size - 1).mapTo(perimeterForSpike) {
-            Point2D.distance(points[it].first, points[it].second, points[it+1].first, points[it+1].second)
-        }
-
-        acc + (perimeterForSpike.fold(BigDecimal.ZERO) { spikeAcc, data -> spikeAcc + BigDecimal.valueOf(data) }.divide(BigDecimal.valueOf(perimeterForSpike.size.toLong()), 20, RoundingMode.HALF_UP) )
-    }.toFloat()
 })

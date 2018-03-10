@@ -187,33 +187,4 @@ class FeatureExtractorTest {
         assert((spike1Result + spike2Result)/2 almostEqual feature[0].second[0])
 
     }
-
-    @Test
-    fun meanChange() {
-        val t1Channel1Data = arrayOf(
-                Spike(1.0, floatArrayOf(0.0f, 15.0f, 12.0f, 22.0f, 31.0f)),
-                Spike(2.0, floatArrayOf(0.0f, 6.0f, 20.0f, 25.0f, 56.0f))
-        )
-
-        val feature = MeanChange(1.0f).extract(listOf(TrialData(1, listOf(t1Channel1Data))))
-
-        val spike1 = t1Channel1Data[0].waveform.mapIndexed { index, float -> Pair((t1Channel1Data[0].timestamp + index) / 1.0f, float.toDouble()) }
-        val spike2 = t1Channel1Data[1].waveform.mapIndexed { index, float -> Pair((t1Channel1Data[1].timestamp + index) / 1.0f, float.toDouble()) }
-
-        var spike1Result = 0.0
-        (0 until spike1.size - 1).forEach {
-            spike1Result += Point2D.distance(spike1[it].first, spike1[it].second, spike1[it+1].first, spike1[it+1].second)
-        }
-        spike1Result /= spike1.size - 1
-
-        var spike2Result = 0.0
-        (0 until spike2.size - 1).forEach {
-            spike2Result += Point2D.distance(spike2[it].first, spike2[it].second, spike2[it+1].first, spike2[it+1].second)
-        }
-        spike2Result /= spike2.size - 1
-
-        assert((spike1Result + spike2Result) almostEqual feature[0].second[0])
-
-    }
-
 }
