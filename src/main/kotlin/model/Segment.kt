@@ -24,4 +24,6 @@ data class Segment(val start: Int, val data: FloatArray) {
         result = 31 * result + Arrays.hashCode(data)
         return result
     }
+
+    operator fun get(index: Int) = data[index]
 }

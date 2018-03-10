@@ -9,4 +9,6 @@ package model
 class Spike(
         val timestamp: Double,
         val waveform: FloatArray
-)
+) {
+    operator fun get(index: Int) = waveform[index]
+}
