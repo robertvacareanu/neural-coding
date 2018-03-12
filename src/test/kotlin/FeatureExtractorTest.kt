@@ -2,6 +2,9 @@ import algorithm.extractor.feature.*
 import model.Spike
 import model.TrialData
 import org.junit.Test
+import reader.almostEqual
+import reader.get
+import reader.orientation
 import java.awt.geom.Point2D
 import kotlin.math.abs
 
@@ -11,9 +14,6 @@ import kotlin.math.abs
  */
 class FeatureExtractorTest {
 
-    private infix fun Number.almostEqual(number: Number): Boolean {
-        return abs(this.toDouble() - number.toDouble()) < 0.00001
-    }
 
     private fun constructTrialDataMock(): List<TrialData> {
         //Construct some test data
@@ -65,30 +65,30 @@ class FeatureExtractorTest {
 
         val feature = featureExtractor.extract(constructTrialDataMock())
 
-        assert(feature[0].first == 1)
-        assert(feature[1].first == 1)
+        assert(feature[0].orientation == 1)
+        assert(feature[1].orientation == 1)
 
-        assert(feature[0].second[0] almostEqual 43.0333333333)
-        assert(feature[0].second[1] almostEqual 46)
-        assert(feature[0].second[2] almostEqual 66.5533333333)
-        assert(feature[1].second[0] almostEqual 41)
-        assert(feature[1].second[1] almostEqual 57.3333333333)
-        assert(feature[1].second[2] almostEqual 53.0433333333)
+        assert(feature[0][0] almostEqual  43.0333333333)
+        assert(feature[0][1] almostEqual 46)
+        assert(feature[0][2] almostEqual 66.5533333333)
+        assert(feature[1][0] almostEqual 41)
+        assert(feature[1][1] almostEqual 57.3333333333)
+        assert(feature[1][2] almostEqual 53.0433333333)
     }
 
     @Test
     fun spikePerSec() {
         val feature = SpikesPerSec(10.0f).extract(constructTrialDataMock())
 
-        assert(feature[0].first == 1)
-        assert(feature[1].first == 1)
+        assert(feature[0].orientation == 1)
+        assert(feature[1].orientation == 1)
 
-        assert(feature[0].second[0] almostEqual 15.0)
-        assert(feature[0].second[1] almostEqual 7.5)
-        assert(feature[0].second[2] almostEqual 3.333333)
-        assert(feature[1].second[0] almostEqual 1.578947368)
-        assert(feature[1].second[1] almostEqual 0.769230769)
-        assert(feature[1].second[2] almostEqual 3.333333)
+        assert(feature[0][0] almostEqual 15.0)
+        assert(feature[0][1] almostEqual 7.5)
+        assert(feature[0][2] almostEqual 3.333333)
+        assert(feature[1][0] almostEqual 1.578947368)
+        assert(feature[1][1] almostEqual 0.769230769)
+        assert(feature[1][2] almostEqual 3.333333)
 
     }
 

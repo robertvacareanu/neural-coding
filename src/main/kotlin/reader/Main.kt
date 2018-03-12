@@ -9,6 +9,7 @@ import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.abs
 
 /**
  * Created by robert on 12/9/17.
@@ -29,6 +30,9 @@ fun main(args: Array<String>) {
     Log.v("main", "Exit main now")
 }
 
+/**
+ * A utility function that outputs an image representing the spike
+ */
 fun Spike.toGraph(name: String, width: Int = 500, height: Int = 500) {
     val dataset = XYSeriesCollection()
     val series = XYSeries("Data")
@@ -40,4 +44,23 @@ fun Spike.toGraph(name: String, width: Int = 500, height: Int = 500) {
     val ds = ChartFactory.createXYLineChart("Spike", "Sample number", "Amplitude (uv)", dataset, PlotOrientation.VERTICAL, true, true, false)
 
     ChartUtilities.writeChartAsPNG(FileOutputStream(File(name)), ds, width, height)
+}
+
+/**
+ * A utility function to avoid calls like: data[0].second[3]
+ */
+operator fun Pair<Int, FloatArray>.get(index: Int) = second[index]
+
+/**
+ * Providing an alias for first
+ * It improves readability
+ */
+val Pair<Int, FloatArray>.orientation: Int
+    get() = first
+
+/**
+ * Commonly used in tests to compare doubles
+ */
+inline infix fun Number.almostEqual(number: Number): Boolean {
+    return abs(this.toDouble() - number.toDouble()) < 0.00001
 }
