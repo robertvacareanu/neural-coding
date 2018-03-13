@@ -1,4 +1,4 @@
-package logger
+package data_conversion
 
 import java.io.File
 
@@ -9,11 +9,8 @@ import java.io.File
 fun exportCSV(data: List<Pair<Int, FloatArray>>, name: String) {
     File(name).bufferedWriter().use { br ->
         data.forEach {
-            br.appendln(it.second.joinToString(","))
+            br.append(it.second.joinToString(",").plus(","))
+            br.appendln(data.map { it.first/45.0 }.joinToString(","))
         }
-    }
-    File("${name}_Results").bufferedWriter().use { br ->
-        br.append(data.map { it.first/45.0 }.joinToString(","))
-
     }
 }
