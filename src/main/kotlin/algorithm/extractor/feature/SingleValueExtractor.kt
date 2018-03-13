@@ -6,6 +6,7 @@ import java.awt.geom.Point2D
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.abs
+import kotlin.math.min
 
 /**
  * Created by robert on 3/9/18.
@@ -39,7 +40,7 @@ class MeanAmplitude(private val spikeOffset: Int) : SingleValueExtractor({
  */
 class SpikesPerSec(private val waveformInternalSamplingFrequency: Float) : SingleValueExtractor({
     when {
-        it.size > 1 -> (it.size / ((it.last().timestamp - it.first().timestamp) / waveformInternalSamplingFrequency)).toFloat()
+        it.size > 1 -> min((it.size / ((it.last().timestamp - it.first().timestamp) / waveformInternalSamplingFrequency)).toFloat(), it.size.toFloat())
         it.size == 1 -> 1f
         else -> 0f
     }

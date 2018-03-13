@@ -83,12 +83,12 @@ class FeatureExtractorTest {
         assert(feature[0].orientation == 1)
         assert(feature[1].orientation == 1)
 
-        assert(feature[0][0] almostEqual 15.0)
-        assert(feature[0][1] almostEqual 7.5)
-        assert(feature[0][2] almostEqual 3.333333)
+        assert(feature[0][0] almostEqual 3.0)
+        assert(feature[0][1] almostEqual 3.0)
+        assert(feature[0][2] almostEqual 3.0)
         assert(feature[1][0] almostEqual 1.578947368)
         assert(feature[1][1] almostEqual 0.769230769)
-        assert(feature[1][2] almostEqual 3.333333)
+        assert(feature[1][2] almostEqual 3.0)
 
     }
 
