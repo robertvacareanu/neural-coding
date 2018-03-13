@@ -2,19 +2,16 @@ import algorithm.extractor.data.*
 import org.junit.Test
 import reader.DataReader
 import reader.MetadataReader
+import reader.almostEqual
 import kotlin.math.abs
 
 /**
  * Created by robert on 2/19/18.
+ * Tests for the functionality inside algorithm.extractor.data
  */
 class DataExtractorTest {
 
     private val basePath = "../M017"
-
-    private infix fun Number.almostEqual(number: Number): Boolean {
-        return abs(this.toDouble() - number.toDouble()) < 0.00001
-    }
-
 
     @Test
     fun betwenStim() {
