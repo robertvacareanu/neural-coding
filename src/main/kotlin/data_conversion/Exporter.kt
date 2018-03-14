@@ -1,5 +1,6 @@
 package data_conversion
 
+import reader.orientation
 import java.io.File
 
 /**
@@ -10,7 +11,7 @@ fun exportCSV(data: List<Pair<Int, FloatArray>>, name: String) {
     File(name).bufferedWriter().use { br ->
         data.forEach {
             br.append(it.second.joinToString(",").plus(","))
-            br.appendln(data.map { it.first/45.0 }.joinToString(","))
+            br.appendln(it.orientation.toString())
         }
     }
 }
