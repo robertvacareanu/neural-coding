@@ -1,9 +1,11 @@
 package data_conversion.exporter;
 
 import algorithm.extractor.data.AfterStim;
+import algorithm.extractor.data.AfterStimOff;
 import algorithm.extractor.data.BeforeStim;
 import algorithm.extractor.data.BetweenStim;
 import data_conversion.file_utility.FileTypes;
+import data_conversion.file_utility.Timestamps;
 import javafx.util.Pair;
 import model.Trial;
 import model.TrialData;
@@ -29,28 +31,59 @@ public abstract class DataExporter {
         return new Pair<>(dataReader, trialsList);
     }
 
-    protected List<TrialData> readBetweenStimTrialData(String basePath) {
+    private List<TrialData> readBetweenStimTrialData(String basePath) {
 
         Pair<DataReader, List<Trial>> readerAndData = readData(basePath);
         BetweenStim betweenStim = new BetweenStim(readerAndData.getKey());
         return betweenStim.extractData(readerAndData.getValue());
     }
 
-    protected List<TrialData> readAfterStimTrial(String basePath) {
+    private List<TrialData> readAfterStimTrial(String basePath) {
 
         Pair<DataReader, List<Trial>> readerAndData = readData(basePath);
         AfterStim afterStim = new AfterStim(readerAndData.getKey());
         return afterStim.extractData(readerAndData.getValue());
     }
 
-    protected List<TrialData> readBeforeStimTrial(String basePath) {
+    private List<TrialData> readBeforeStimTrial(String basePath) {
 
         Pair<DataReader, List<Trial>> readerAndData = readData(basePath);
         BeforeStim beforeStim = new BeforeStim(readerAndData.getKey());
         return beforeStim.extractData(readerAndData.getValue());
     }
 
-    public abstract void exportData(String basePath, String fileName, FileTypes fileType);
+    private List<TrialData> readAfterStimOff(String basePath, int value) {
+
+        Pair<DataReader, List<Trial>> readerAndData = readData(basePath);
+        AfterStimOff afterStimOff = new AfterStimOff(readerAndData.getKey(), value);
+        return afterStimOff.extractData(readerAndData.getValue());
+    }
+
+    private List<TrialData> readAfterStimOn(String basePath, int value) {
+        Pair<DataReader, List<Trial>> readerAndData = readData(basePath);
+        AfterStimOff afterStimOff = new AfterStimOff(readerAndData.getKey(), value);
+        return afterStimOff.extractData(readerAndData.getValue());
+    }
+
+    List<TrialData> readTrialDataAccordingToTimestamp(String basePath, Timestamps timestamp) {
+        if(timestamp.equals(Timestamps.BEFORE)) {
+            return readBeforeStimTrial(basePath);
+        }
+        else if(timestamp.equals(Timestamps.BETWEEN)) {
+            return readBetweenStimTrialData(basePath);
+        }
+        else if(timestamp.equals(Timestamps.AFTER_STIM_OFF_INTERVAL)){
+            return readAfterStimOff(basePath, 200);
+        }
+        else if(timestamp.equals(Timestamps.AFTER_STIM_ON_INTERVAL)) {
+            return readAfterStimOn(basePath, 200);
+        }
+        else {
+            return readAfterStimTrial(basePath);
+        }
+    }
+
+    public abstract void exportData(String basePath, String fileName, FileTypes fileType, Timestamps timestamp);
 
     SpikeMetadata getSpikeMetadata() {
         return spikeMetadata;
