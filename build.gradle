@@ -5,6 +5,7 @@ buildscript {
     ext.kotlin_version = '1.2.21'
 
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -15,6 +16,12 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
 sourceCompatibility = 1.8
 
 repositories {
@@ -23,6 +30,8 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21"
+
     compile group: 'jfree', name: 'jfreechart', version: '1.0.13'
     // https://mvnrepository.com/artifact/com.edwardraff/JSAT
     compile group: 'com.edwardraff', name: 'JSAT', version: '0.0.9'

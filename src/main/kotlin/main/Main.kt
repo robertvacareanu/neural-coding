@@ -1,4 +1,4 @@
-package reader
+package main
 
 import logger.Log
 import model.Spike
@@ -7,6 +7,7 @@ import org.jfree.chart.ChartUtilities
 import org.jfree.chart.plot.PlotOrientation
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
+import reader.MetadataReader
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.abs

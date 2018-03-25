@@ -1,7 +1,7 @@
 package algorithm.processor
 
-import reader.almostEqual
-import reader.get
+import main.almostEqual
+import main.get
 
 /**
  * Created by robert on 3/15/18.

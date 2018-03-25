@@ -1,9 +1,11 @@
+package extractor.data
+
 import algorithm.extractor.data.*
 import org.junit.Test
-import reader.DataReader
 import reader.MetadataReader
-import reader.almostEqual
-import kotlin.math.abs
+import main.almostEqual
+import model.metadata.SpikeMetadata
+import reader.spikes.DataSpikeReader
 
 /**
  * Created by robert on 2/19/18.
@@ -18,7 +20,7 @@ class DataExtractorTest {
 
 
         val mr = MetadataReader(basePath)
-        val dr = DataReader(mr.readEPD(), mr.readSSD(), mr.readSPKTWE(), mr.readETI())
+        val dr = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
 
         val trials = dr.readTrials()
 
@@ -71,7 +73,7 @@ class DataExtractorTest {
 
 
         val mr = MetadataReader(basePath)
-        val dr = DataReader(mr.readEPD(), mr.readSSD(), mr.readSPKTWE(), mr.readETI())
+        val dr = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
 
         val trials = dr.readTrials()
 
@@ -141,7 +143,7 @@ class DataExtractorTest {
     @Test
     fun beforeStim() {
         val mr = MetadataReader(basePath)
-        val dr = DataReader(mr.readEPD(), mr.readSSD(), mr.readSPKTWE(), mr.readETI())
+        val dr = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
 
         val trials = dr.readTrials()
 
@@ -192,7 +194,7 @@ class DataExtractorTest {
 
         val mr = MetadataReader(basePath)
         val spikeMetadata = mr.readSPKTWE()
-        val dr = DataReader(mr.readEPD(), mr.readSSD(), spikeMetadata, mr.readETI())
+        val dr = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
 
         val trials = dr.readTrials()
 
@@ -277,7 +279,7 @@ class DataExtractorTest {
 
         val mr = MetadataReader(basePath)
         val spikeMetadata = mr.readSPKTWE()
-        val dr = DataReader(mr.readEPD(), mr.readSSD(), spikeMetadata, mr.readETI())
+        val dr = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
 
         val trials = dr.readTrials()
 

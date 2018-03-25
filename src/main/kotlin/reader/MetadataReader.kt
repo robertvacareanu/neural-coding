@@ -1,9 +1,9 @@
 package reader
 
+import model.metadata.EpdMetadata
 import model.metadata.EtiMetadata
-import model.metadata.SpikeMetadata
-import model.metadata.SpikeSortedMetadata
-import model.metadata.WaveformMetadata
+import model.metadata.SpktweMetadata
+import model.metadata.SsdMetadata
 import java.io.File
 
 /**
@@ -11,9 +11,9 @@ import java.io.File
  * Expects path to folder containing the files and every path
  * contained in a metadata file to be valid relative to the
  * metadata path.
- * @link SpikeMetadata
+ * @link SpktweMetadata
  * and
- * @link SpikeSortedMetadata
+ * @link SsdMetadata
  * are expected to have their files together
  *
  */
@@ -37,7 +37,7 @@ class MetadataReader {
 
     }
 
-    fun readSPKTWE(): SpikeMetadata {
+    fun readSPKTWE(): SpktweMetadata {
         val f = File(spktwePath)
         val lines = f.readLines()
         val start = 2
@@ -76,13 +76,13 @@ class MetadataReader {
 
 
 
-        return SpikeMetadata(basePath(spktwePath),
+        return SpktweMetadata(basePath(spktwePath),
                 version, dataChannels, storedChannelsNames, spikesInEachChanel, spikeTimeSampling,
                 recordLength, waveformInternalSampling, waveformLength, waveformSpikeOffset, eventsSamplingFrequency,
                 events, spikeTimestampsPath, spikeWaveformsPath, eventTimestampPath, codeEventsPath)
     }
 
-    fun readEPD(): WaveformMetadata {
+    fun readEPD(): EpdMetadata {
         val f = File(epdPath)
         val lines = f.readLines()
 
@@ -116,11 +116,11 @@ class MetadataReader {
             ((start + 10 * offset + (2 * eegChannels - 2)) until ((start + 10 * offset + (2 * eegChannels - 2)) + averageChannelsUsed)).mapTo(averageChannelsUsedNames) { lines[it] }
         }
 
-        return WaveformMetadata(basePath(epdPath), version, eegChannels, frequency, samples, channelPaths, timestampPath, eventCodePath, events, eegChannelsLabel, averageChannelsUsed, averageChannelsUsedNames)
+        return EpdMetadata(basePath(epdPath), version, eegChannels, frequency, samples, channelPaths, timestampPath, eventCodePath, events, eegChannelsLabel, averageChannelsUsed, averageChannelsUsedNames)
 
     }
 
-    fun readSSD(): SpikeSortedMetadata {
+    fun readSSD(): SsdMetadata {
         val f = File(ssdPath)
 
         val lines = f.readLines()//.filter { it != "" }
@@ -158,7 +158,7 @@ class MetadataReader {
         val eventCodesPath = lines[(start + 13 * offset + (3 * numberOfUnits - 3))]
 
 
-        return SpikeSortedMetadata(basePath(spktwePath), version, numberOfUnits, unitNames, unitOriginator, spikesInEachUnit,
+        return SsdMetadata(basePath(spktwePath), version, numberOfUnits, unitNames, unitOriginator, spikesInEachUnit,
                 spikeTimeSamplingFrequency, waveformInternalSamplingFrequency, waveformLengthSamples, waveformSpikeAlignOffset,
                 eventSize, spikeTimestampPath, unitStatisticsPath, eventTimestampPath, eventCodesPath)
     }

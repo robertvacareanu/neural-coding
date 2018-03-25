@@ -3,7 +3,7 @@ package algorithm.extractor.data
 import model.Spike
 import model.Trial
 import model.TrialData
-import reader.DataReader
+import reader.spikes.SpikeReader
 
 /**
  * Created by robert on 2/24/18.
@@ -13,21 +13,21 @@ import reader.DataReader
  * Trial start (t1), Stim ON (t2), Stim OFF (t3), Trial end (t4)
  *
  */
-sealed class BetweenTimestamps(private val dataReader: DataReader, val startOffset: Trial.() -> Int, val endOffset: Trial.() -> Int) : DataExtractor<List<Trial>, List<TrialData>> {
+sealed class BetweenTimestamps(private val dataReader: SpikeReader, val startOffset: Trial.() -> Int, val endOffset: Trial.() -> Int) : DataExtractor<List<Trial>, List<TrialData>> {
 
     private val trialDataSpikeTimestamps by lazy { dataReader.readSpikeTimestamps() }
 
     override fun extractData(data: List<Trial>): List<TrialData> {
         return data.map { trial ->
             val firstLastSpike = mutableMapOf<Int, Pair<Int, Int>>()
-            (1..dataReader.numberOfChannels()).forEachIndexed { index, _ ->
-                val indexFirstSpike = trialDataSpikeTimestamps[index].indexOfFirst { it > startOffset(trial) }
-                val indexLastSpike = trialDataSpikeTimestamps[index].indexOfFirst { it > endOffset(trial) }
+            (1..dataReader.numberOfUnits()).forEachIndexed { index, _ ->
+                val indexFirstSpike = trialDataSpikeTimestamps[index].indexOfFirst { it >= trial.startOffset() }
+                val indexLastSpike = trialDataSpikeTimestamps[index].indexOfFirst { it > trial.endOffset() }
                 firstLastSpike[index] = Pair(indexFirstSpike, indexLastSpike)
             }
             val trialDataChannels = mutableListOf<Array<Spike>>()
-            (1..dataReader.numberOfChannels()).mapTo(trialDataChannels, {
-                dataReader.readChannelSpikes(it, firstLastSpike[it - 1]!!.first until firstLastSpike[it - 1]!!.second).toTypedArray()
+            (1..dataReader.numberOfUnits()).mapTo(trialDataChannels, {
+                dataReader.readSpikes(it, firstLastSpike[it - 1]!!.first until firstLastSpike[it - 1]!!.second).toTypedArray()
             })
             return@map TrialData(trial.orientation, trialDataChannels)
         }
@@ -39,28 +39,28 @@ sealed class BetweenTimestamps(private val dataReader: DataReader, val startOffs
  * Between two events
  * In this case, the data considered is from t3 until t4
  */
-class AfterStim(dataReader: DataReader) : BetweenTimestamps(dataReader, {stimOffOffset}, {trialEndOffset})
+class AfterStim(dataReader: SpikeReader) : BetweenTimestamps(dataReader, { stimOffOffset }, { trialEndOffset })
 
 /**
  * Between two events
  * In this case, the data considered is from t1 until t2
  */
-class BeforeStim(dataReader: DataReader) : BetweenTimestamps(dataReader, startOffset = { trialStartOffset }, endOffset = { stimOnOffset })
+class BeforeStim(dataReader: SpikeReader) : BetweenTimestamps(dataReader, startOffset = { trialStartOffset }, endOffset = { stimOnOffset })
 
 /**
  * Between two events
  * In this case, the data considered is from t2  until t3
  */
-class BetweenStim(dataReader: DataReader) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOffOffset })
+class BetweenStim(dataReader: SpikeReader) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOffOffset })
 
 /**
  * In this case, the data considered is from t2 until t2 + howMany
  */
-class AfterStimOn(dataReader: DataReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOnOffset + 4 * howMany })
+class AfterStimOn(dataReader: SpikeReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOnOffset + 4 * howMany })
 
 /**
  * In this case, the data considered is from t3 until t3 + howMany
  */
-class AfterStimOff(dataReader: DataReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOffOffset }, { stimOffOffset + 4 * howMany })
+class AfterStimOff(dataReader: SpikeReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOffOffset }, { stimOffOffset + 4 * howMany })
 
-class RandomAfterStimOn(dataReader: DataReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { stimOnOffset + 4 * howManyAfterSecond }, { stimOnOffset + 4 * (howMannyAfterFirst + howManyAfterSecond) })
+class RandomAfterStimOn(dataReader: SpikeReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { stimOnOffset + 4 * howManyAfterSecond }, { stimOnOffset + 4 * (howMannyAfterFirst + howManyAfterSecond) })

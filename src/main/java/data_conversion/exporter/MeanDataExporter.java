@@ -1,6 +1,7 @@
 package data_conversion.exporter;
 
 import algorithm.extractor.feature.MeanAmplitude;
+import algorithm.extractor.feature.SingleValueFeatureExtractor;
 import data_conversion.converter.FileConverterFactory;
 import data_conversion.file_utility.FileTypes;
 import data_conversion.file_utility.Timestamps;
@@ -16,8 +17,9 @@ public class MeanDataExporter extends DataExporter {
 
         List<TrialData> trialData = super.readTrialDataAccordingToTimestamp(basePath, timestamp);
 
-        MeanAmplitude entireChannelMeanAmplitude = new MeanAmplitude(super.getSpikeMetadata().getWaveformSpikeOffset());
-        List<Pair<Integer, float[]>> extractedData = entireChannelMeanAmplitude.extract(trialData);
+        SingleValueFeatureExtractor singleValueFeatureExtractor = new SingleValueFeatureExtractor();
+        MeanAmplitude entireChannelMeanAmplitude = new MeanAmplitude(super.getSpktweMetadata().getWaveformSpikeOffset());
+        List<Pair<Integer, float[]>> extractedData = singleValueFeatureExtractor.extract(trialData, entireChannelMeanAmplitude::extractValue);
 
         new FileConverterFactory().getFileConverter(fileType).convertData(arffMeanFile, extractedData);
     }
