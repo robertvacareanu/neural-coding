@@ -5,6 +5,6 @@ package model
  * Holds the necessary data for any type of feature extraction
  * spikeData represents the spikes recorded by a recording entity
  */
-data class TrialData(val orientation: Int, val spikeData: List<Array<Spike>>) {
+data class TrialData(val orientation: Int, val spikeData: List<Array<Spike>>, val extractedBetween: Pair<Double, Double>) {
     operator fun get(index: Int) = spikeData[index]
 }

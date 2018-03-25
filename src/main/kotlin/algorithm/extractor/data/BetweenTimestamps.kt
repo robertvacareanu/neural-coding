@@ -29,7 +29,7 @@ sealed class BetweenTimestamps(private val dataReader: SpikeReader, val startOff
             (1..dataReader.numberOfUnits()).mapTo(trialDataChannels, {
                 dataReader.readSpikes(it, firstLastSpike[it - 1]!!.first until firstLastSpike[it - 1]!!.second).toTypedArray()
             })
-            return@map TrialData(trial.orientation, trialDataChannels)
+            return@map TrialData(trial.orientation, trialDataChannels, Pair(trial.startOffset().toDouble(), trial.endOffset().toDouble()))
         }
     }
 }

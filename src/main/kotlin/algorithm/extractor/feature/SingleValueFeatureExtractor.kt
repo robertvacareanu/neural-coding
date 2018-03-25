@@ -29,23 +29,32 @@ class WindowValueFeatureExtractor(private val windowLength: Int, private val ove
         return data.map {
             val step = windowLength * overlap
             val result = mutableListOf<Float>()
+
             it.spikeData.forEach { array ->
-                var start = array.firstOrNull()?.timestamp ?: 0.0
+                var start = it.extractedBetween.first
                 var end = start + windowLength.toDouble()
                 val timestamps = array.map { it.timestamp }
                 val windowValues = mutableListOf<Float>()
-                val last = array.lastOrNull()?.timestamp ?: windowLength.toDouble()
+                val last = it.extractedBetween.second
                 while (start < last) {
-                    val slice = array.sliceArray(((timestamps.indexOfFirst { it >= start }) until (timestamps.indexOfFirst { it > end }.takeIf { it != -1 } ?: timestamps.size)))
-                    windowValues.add(extractor(slice))
+                    val from = timestamps.indexOfFirst { it >= start }
+                    val to = timestamps.indexOfFirst { it > end }
+                    if ((from != -1) and (to != -1)) {
+//                        println(array.size)
+                        val slice = array.sliceArray(from until to)
+                        windowValues.add(extractor(slice))
+                    } else {
+                        windowValues.add(0f)
+                    }
                     start += step
                     end += step
-                    if(end > last) end = last
+                    if (end > last) end = last
 
                 }
                 result.addAll(windowValues)
 
             }
+//            println(result.size)
             Pair(it.orientation, result.toFloatArray())
         }
     }
@@ -115,7 +124,7 @@ class MeanArea(private val waveformInternalSamplingFrequency: Float, private val
             values.fold(BigDecimal.ZERO) { acc, spike ->
                 val points = spike.waveform.mapIndexed { index, float -> Pair(spike.timestamp + (index / waveformInternalSamplingFrequency.toDouble()), float.toDouble()) }//.filter { values.second < 0 }
                 val onlySpike = isolate(points, spikeOffset)
-                if(onlySpike.size > 2) {
+                if (onlySpike.size > 2) {
                     val areaForSpike = mutableListOf<Double>()
                     (0 until onlySpike.size - 1).mapTo(areaForSpike) {
                         onlySpike[it] * onlySpike[it + 1]
