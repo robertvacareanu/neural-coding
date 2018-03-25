@@ -13,7 +13,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 
 def apply_lda(data_file):
-    banknotes_data = pd.read_csv(data_file)
+    banknotes_data = pd.read_csv(data_file, header=None)
     x = banknotes_data.iloc[:, :-1].values
     y = banknotes_data.iloc[:, -1].values
 
@@ -40,8 +40,8 @@ def plot_data_double(lda_transformed1, y1, label_01, label_02, plot_title1,
     axes[1].scatter(lda_transformed2[y2 == label_12][0], lda_transformed2[y2 == label_12][1], label=label_12, c='blue')
     axes[1].legend()
     axes[1].set_title(plot_title2)
-    plt.savefig(export_folder + file_name +".png")
-#    plt.show()
+    # plt.savefig(export_folder + file_name +".png")
+    plt.show()
 
 
 def plot_data_simple(lda_transformed, y, label1, label2, plot_title, export_folder):

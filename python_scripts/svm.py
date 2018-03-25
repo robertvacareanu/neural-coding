@@ -12,7 +12,7 @@ from sklearn import svm
 
 
 def plot_svm(path, orientation1, orientation2, color1, color2, save_path):
-    data = pd.read_csv(path)
+    data = pd.read_csv(path, header=None)
     X = data.iloc[:, :-1].values
     Y = data.iloc[:, -1].values
     X_norm = (X - X.min()) / (X.max() - X.min())
