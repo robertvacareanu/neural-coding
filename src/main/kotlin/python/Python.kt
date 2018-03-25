@@ -14,6 +14,9 @@ fun callPythonScript(scriptPath: String, args: Map<String, String>) {
     Runtime.getRuntime().exec("python $scriptPath ${args.keys.zip(args.values).joinToString(" ") { "${it.first} ${it.second}" }}")
 }
 
+/**
+ * Apply a python script that besides other arguments accepts a path for input and one for output and produce a .png
+ */
 suspend fun applyPythonScript(path: String, scriptPath: String, args: Map<String, String>) {
     async {
         val jobs = mutableListOf<Job>()

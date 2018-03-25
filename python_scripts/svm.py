@@ -55,7 +55,7 @@ def plot_svm(path, orientation1, orientation2, color1, color2, save_path):
 
 
 parser = argparse.ArgumentParser(description="Script to plot svm after applying lda to data")
-parser.add_argument("-p", "--path", required=True, help="Path to the file containing the file with the features")
+parser.add_argument("-p", "--path", required=True, help="Path to the file with the features")
 parser.add_argument("-o", "--orientation", nargs="*", type=int, required=False, default=[0, 45],
                     help="Orientation to plot svm for. Default is 0 and 45")
 parser.add_argument("-c", "--color", nargs="*", required=False, default=['red', 'blue'],
