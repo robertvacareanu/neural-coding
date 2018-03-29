@@ -1,6 +1,6 @@
 package data_conversion.exporter;
 
-import algorithm.extractor.feature.MeanAmplitude;
+import algorithm.extractor.value.MeanAmplitude;
 import algorithm.extractor.feature.SingleValueFeatureExtractor;
 import data_conversion.converter.FileConverterFactory;
 import data_conversion.file_utility.FileTypes;

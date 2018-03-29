@@ -1,4 +1,4 @@
-package algorithm.extractor.feature
+package algorithm.extractor.value
 
 /**
  * Created by robert on 3/21/18.

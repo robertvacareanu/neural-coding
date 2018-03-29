@@ -1,7 +1,7 @@
 package data_conversion.exporter;
 
 import algorithm.extractor.feature.SingleValueFeatureExtractor;
-import algorithm.extractor.feature.SpikesPerSec;
+import algorithm.extractor.value.SpikesPerSec;
 import data_conversion.converter.FileConverterFactory;
 import data_conversion.file_utility.FileTypes;
 import data_conversion.file_utility.Timestamps;

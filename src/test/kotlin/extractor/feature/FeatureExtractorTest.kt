@@ -1,6 +1,7 @@
 package extractor.feature
 
 import algorithm.extractor.feature.*
+import algorithm.extractor.value.*
 import model.Spike
 import model.TrialData
 import org.junit.Test
@@ -114,13 +115,13 @@ class FeatureExtractorTest {
         )
 
         val res = wve.extract(listOf(TrialData(1, listOf(t1ChannelData.toTypedArray()), Pair(1.0, 29.0))), fe::extractValue)
-
-//        assert(14.0 almostEqual res[0][0])
-//        assert(19.5 almostEqual res[0][1])
-//        assert(23.3333333 almostEqual res[0][2])
-//        assert(26.0 almostEqual res[0][3])
-//        assert(32.0 almostEqual res[0][4])
-//        assert(32.0 almostEqual res[0][5])
+        println(res[0].second.joinToString())
+        assert(14.0 almostEqual res[0][0])
+        assert(19.5 almostEqual res[0][1])
+        assert(23.3333333 almostEqual res[0][2])
+        assert(26.0 almostEqual res[0][3])
+        assert(32.0 almostEqual res[0][4])
+        assert(32.0 almostEqual res[0][5])
 
     }
 
