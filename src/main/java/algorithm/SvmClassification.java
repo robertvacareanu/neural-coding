@@ -15,7 +15,7 @@ public class SvmClassification {
         System.out.println(String.format("The total number of instances: %d", source.getDataSet().size()));
         Integer nrInstances = source.getDataSet().size();
 
-        Double TRAINING_PERCENTAGE = 0.65;
+        Double TRAINING_PERCENTAGE = 0.85;
 
         Double nrTrainData = (nrInstances * TRAINING_PERCENTAGE);
         Integer nrTestData = nrInstances - nrTrainData.intValue();

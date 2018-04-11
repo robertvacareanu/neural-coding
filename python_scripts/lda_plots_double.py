@@ -11,6 +11,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 #                                                          source_file_name2.csv orientation1b orientation2b plot_title2
 #                                                          export_folder file_name
 
+#!! there are only 4 directions - because 0 and 180, 45 and 225 etc are the same
 
 def apply_lda(data_file):
     banknotes_data = pd.read_csv(data_file, header=None)
@@ -31,17 +32,27 @@ def plot_data_double(lda_transformed1, y1, label_01, label_02, plot_title1,
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 7))
 
-    axes[0].scatter(lda_transformed1[y1 == label_01][0], lda_transformed1[y1 == label_01][1], label=label_01, c='red')
-    axes[0].scatter(lda_transformed1[y1 == label_02][0], lda_transformed1[y1 == label_02][1], label=label_02, c='blue')
+    light_blue = '#ccccff'
+    dark_blue = '#0000ff'
+
+    light_red = '#ffb3b3'
+    dark_red = '#e60000'
+
+    axes[0].scatter(lda_transformed1[y1 == label_01][0], lda_transformed1[y1 == label_01][1], label=label_01, c=light_red)
+    axes[0].scatter(lda_transformed1[y1 == label_01 + 180][0], lda_transformed1[y1 == label_01][1], label=label_01 + 180, c=dark_red)
+    axes[0].scatter(lda_transformed1[y1 == label_02][0], lda_transformed1[y1 == label_02][1], label=label_02, c=light_blue)
+    axes[0].scatter(lda_transformed1[y1 == label_02 + 180][0], lda_transformed1[y1 == label_02][1], label=label_02 + 180, c=dark_blue)
     axes[0].legend()
     axes[0].set_title(plot_title1)
 
-    axes[1].scatter(lda_transformed2[y2 == label_11][0], lda_transformed2[y2 == label_11][1], label=label_11, c='red')
-    axes[1].scatter(lda_transformed2[y2 == label_12][0], lda_transformed2[y2 == label_12][1], label=label_12, c='blue')
+    axes[1].scatter(lda_transformed2[y2 == label_11][0], lda_transformed2[y2 == label_11][1], label=label_11, c=light_red)
+    axes[1].scatter(lda_transformed2[y2 == label_11 + 180][0], lda_transformed2[y2 == label_11][1], label=label_11 + 180, c=dark_red)
+    axes[1].scatter(lda_transformed2[y2 == label_12][0], lda_transformed2[y2 == label_12][1], label=label_12, c=light_blue)
+    axes[1].scatter(lda_transformed2[y2 == label_12 + 180][0], lda_transformed2[y2 == label_12][1], label=label_12 + 180, c=dark_blue)
     axes[1].legend()
     axes[1].set_title(plot_title2)
-    # plt.savefig(export_folder + file_name +".png")
-    plt.show()
+    plt.savefig(export_folder + file_name +".png")
+    #plt.show()
 
 
 def plot_data_simple(lda_transformed, y, label1, label2, plot_title, export_folder):

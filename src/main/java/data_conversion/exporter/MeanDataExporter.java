@@ -1,9 +1,10 @@
 package data_conversion.exporter;
 
-import algorithm.extractor.value.MeanAmplitude;
 import algorithm.extractor.feature.SingleValueFeatureExtractor;
+import algorithm.extractor.value.MeanAmplitude;
 import data_conversion.converter.FileConverterFactory;
 import data_conversion.file_utility.FileTypes;
+import data_conversion.file_utility.SpikesTypes;
 import data_conversion.file_utility.Timestamps;
 import kotlin.Pair;
 import model.TrialData;
@@ -13,13 +14,15 @@ import java.util.List;
 public class MeanDataExporter extends DataExporter {
 
     @Override
-    public void exportData(String basePath, String arffMeanFile, FileTypes fileType, Timestamps timestamp) {
+    public void exportData(String basePath, String arffMeanFile, FileTypes fileType, Timestamps timestamp, SpikesTypes spikesTypes) {
 
-        List<TrialData> trialData = super.readTrialDataAccordingToTimestamp(basePath, timestamp);
+        List<TrialData> trialData = super.readTrialDataAccordingToTimestamp(basePath, timestamp, spikesTypes);
 
         SingleValueFeatureExtractor singleValueFeatureExtractor = new SingleValueFeatureExtractor();
-        MeanAmplitude entireChannelMeanAmplitude = new MeanAmplitude(super.getSpktweMetadata().getWaveformSpikeOffset());
+        MeanAmplitude entireChannelMeanAmplitude = new MeanAmplitude(super.getSpikeMetadata().getWaveformSpikeOffset());
         List<Pair<Integer, float[]>> extractedData = singleValueFeatureExtractor.extract(trialData, entireChannelMeanAmplitude::extractValue);
+
+        //List<Pair<Integer, float[]>> cleanData = FeatureSelectorKt.removeIfEmpty(extractedData);
 
         new FileConverterFactory().getFileConverter(fileType).convertData(arffMeanFile, extractedData);
     }

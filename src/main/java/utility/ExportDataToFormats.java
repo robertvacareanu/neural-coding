@@ -5,6 +5,7 @@ import data_conversion.exporter.FireRateDataExporter;
 import data_conversion.exporter.MeanDataExporter;
 import data_conversion.file_utility.FeatureType;
 import data_conversion.file_utility.FileTypes;
+import data_conversion.file_utility.SpikesTypes;
 import data_conversion.file_utility.Timestamps;
 
 import java.util.HashMap;
@@ -33,13 +34,16 @@ class ExportService {
 
         for (FeatureType featureType : FeatureType.values()) {
             for (FileTypes fileType : FileTypes.values()) {
-                DataExporter dataExporter = exporterMapping.get(featureType);
-                String fileName = String.format("data/%s_%s_M017.%s",
-                        featureType.getFeatureDesc(),
-                        timestamp.getTimeStamp(),
-                        fileType.getValue());
+                for (SpikesTypes spikesType : SpikesTypes.values()) {
+                    DataExporter dataExporter = exporterMapping.get(featureType);
+                    String fileName = String.format("data/%s_%s_%s_M017.%s",
+                            spikesType.getDescription(),
+                            featureType.getFeatureDesc(),
+                            timestamp.getTimeStamp(),
+                            fileType.getValue());
 
-                dataExporter.exportData(basePath, fileName, fileType, timestamp);
+                    dataExporter.exportData(basePath, fileName, fileType, timestamp, spikesType);
+                }
             }
         }
     }
@@ -56,8 +60,8 @@ public class ExportDataToFormats {
         exportService.exportData(args[0], Timestamps.BEFORE);
         exportService.exportData(args[0], Timestamps.BETWEEN);
         exportService.exportData(args[0], Timestamps.AFTER);
-        exportService.exportData(args[0], Timestamps.AFTER_STIM_ON_INTERVAL);
-        exportService.exportData(args[0], Timestamps.AFTER_STIM_OFF_INTERVAL);
+        //exportService.exportData(args[0], Timestamps.AFTER_STIM_ON_INTERVAL);
+        //exportService.exportData(args[0], Timestamps.AFTER_STIM_OFF_INTERVAL);
 
     }
 
