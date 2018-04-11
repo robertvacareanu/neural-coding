@@ -57,7 +57,7 @@ public class ExportDataToFormats {
         }
 
         ExportService exportService = new ExportService();
-        exportService.exportData(args[0], Timestamps.BEFORE);
+//        exportService.exportData(args[0], Timestamps.BEFORE);
         exportService.exportData(args[0], Timestamps.BETWEEN);
         exportService.exportData(args[0], Timestamps.AFTER);
         //exportService.exportData(args[0], Timestamps.AFTER_STIM_ON_INTERVAL);

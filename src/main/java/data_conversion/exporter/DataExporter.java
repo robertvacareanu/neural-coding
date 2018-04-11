@@ -7,7 +7,6 @@ import algorithm.extractor.data.BetweenStim;
 import data_conversion.file_utility.FileTypes;
 import data_conversion.file_utility.SpikesTypes;
 import data_conversion.file_utility.Timestamps;
-import exporter.ExporterKt;
 import javafx.util.Pair;
 import model.Trial;
 import model.TrialData;
@@ -25,7 +24,7 @@ public abstract class DataExporter {
         MetadataReader metadataReader = new MetadataReader(basePath);
 
         // needed in order to get the sorted spikes waveforms
-        ExporterKt.exportSpikeSortedWaveform(metadataReader);
+        //ExporterKt.exportSpikeSortedWaveform(metadataReader);
 
         if(spikesType.equals(SpikesTypes.SORTED_SPIKES)) {
             this.spikeMetadata = new SpikeMetadata(metadataReader.readSSD());
