@@ -2,15 +2,19 @@ package algorithm.processor
 
 import model.TrialData
 
-fun removeIfNotEnoughSpikes(trialData: List<TrialData>, nrSpikesPerUnitTresshold: Int = 500) = with(trialData) {
+/**
+ * An utility function that removes units having below
+ */
+fun removeIfNotEnoughSpikes(trialData: List<TrialData>, threshold: Int = 500) = with(trialData) {
 
-    val x = (0 until trialData.first().spikeData.size).filter { unit ->
-        trialData.fold(0) { acc, trial ->
+    //Assumes that every trial has the same number of units and that there is at least one trial inside trialData
+    val x = (0 until first().spikeData.size).filter { unit ->
+        fold(0) { acc, trial ->
             acc + trial[unit].size
-        } > nrSpikesPerUnitTresshold
+        } > threshold
     }
 
-    val result = trialData.map {
+    val result = map {
         TrialData(it.orientation, it.spikeData.filterIndexed { index, _ -> x.contains(index) }, it.extractedBetween)
     }
 
