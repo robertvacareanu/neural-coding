@@ -28,7 +28,6 @@ class WindowValueFeatureExtractor(private val windowLength: Int, private val ove
                         to = timestamps.size
                     }
                     if ((from != -1) and (to != -1)) {
-                        println(array.size)
                         val slice = array.sliceArray(from until to)
                         val res = extractor(slice)
                         windowValues.add(res)
@@ -41,7 +40,6 @@ class WindowValueFeatureExtractor(private val windowLength: Int, private val ove
                 result.addAll(windowValues)
 
             }
-            println(result.size)
             Pair(it.orientation, result.toFloatArray())
         }
     }
