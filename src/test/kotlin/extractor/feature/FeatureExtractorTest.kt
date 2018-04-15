@@ -61,7 +61,7 @@ class FeatureExtractorTest {
     }
 
     @Test
-    fun meanAmplitude() {
+    fun meanAmplitudeTest() {
         val featureExtractor = MeanAmplitude(5)
 
 
@@ -79,7 +79,7 @@ class FeatureExtractorTest {
     }
 
     @Test
-    fun spikePerSec() {
+    fun spikePerSecTest() {
         val feature = SingleValueFeatureExtractor().extract(constructTrialDataMock(), SpikesPerSec(10.0f)::extractValue)
 
         assert(feature[0].orientation == 1)
@@ -95,7 +95,7 @@ class FeatureExtractorTest {
     }
 
     @Test
-    fun windowValueExtractor() {
+    fun windowValueExtractorTest() {
         val wve = WindowValueFeatureExtractor(10, 0.5)
         val fe = MeanAmplitude(2)
 
@@ -115,7 +115,7 @@ class FeatureExtractorTest {
         )
 
         val res = wve.extract(listOf(TrialData(1, listOf(t1ChannelData.toTypedArray()), Pair(1.0, 29.0))), fe::extractValue)
-        println(res[0].second.joinToString())
+
         assert(14.0 almostEqual res[0][0])
         assert(19.5 almostEqual res[0][1])
         assert(23.3333333 almostEqual res[0][2])
@@ -126,7 +126,7 @@ class FeatureExtractorTest {
     }
 
     @Test
-    fun meanPerimeter() {
+    fun meanPerimeterTest() {
 
         val t1Channel1Data = arrayOf(
                 Spike(1.0, floatArrayOf(0.0f, -15.0f, -12.0f, -22.0f, -31.0f)),
@@ -187,17 +187,15 @@ class FeatureExtractorTest {
     }
 
     @Test
-    fun meanArea() {
+    fun meanAreaTest() {
         val t1Channel1Data = arrayOf(
                 Spike(1.0, floatArrayOf(0.0f, -15.0f, -52.0f, -22.0f, -31.0f)),
                 Spike(2.0, floatArrayOf(0.0f, 6.0f, -20.0f, 25.0f, 56.0f))
         )
 
-        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 5.0))), MeanArea(1.0f, 3)::extractValue)
+        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 5.0))), MeanArea(1.0f, 2)::extractValue)
 
         val s1 = listOf(Pair(1.0f, 0.0f), Pair(2.0f, -15.0f), Pair(3.0f, -52.0f), Pair(4.0f, -22.0f), Pair(5.0f, -31.0f))
-        val s2 = listOf(Pair(1.1f, -15.0f), Pair(1.2f, -12.0f), Pair(1.3f, -22.0f), Pair(1.4f, -31.0f))
-
 
         var spike1Result = 0.0
         (0 until s1.size - 1).forEach {
@@ -205,5 +203,18 @@ class FeatureExtractorTest {
         }
 
         assert((spike1Result)/2 almostEqual feature[0].second[0])
+
+    }
+
+    @Test
+    fun isolateTest() {
+        val sp1 = listOf(Pair(1.0, -10.0), Pair(2.0, 6.0), Pair(3.0, -20.0), Pair(4.0, 25.0), Pair(5.0, -56.0))
+
+        val rs1 = isolate(sp1, 2)
+
+        assert(rs1.size == 1)
+        assert(rs1[0].first == 3.0)
+        assert(rs1[0].second == -20.0)
+
     }
 }
