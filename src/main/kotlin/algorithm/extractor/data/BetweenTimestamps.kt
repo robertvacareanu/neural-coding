@@ -63,4 +63,14 @@ class AfterStimOn(dataReader: SpikeReader, private val howMany: Int) : BetweenTi
  */
 class AfterStimOff(dataReader: SpikeReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOffOffset }, { stimOffOffset + 4 * howMany })
 
-class RandomAfterStimOn(dataReader: SpikeReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { stimOnOffset + 4 * howManyAfterSecond }, { stimOnOffset + 4 * (howMannyAfterFirst + howManyAfterSecond) })
+/**
+ * In this case, read data after stim on between specified points
+ */
+class RandomAfterStimOn(dataReader: SpikeReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { stimOnOffset + 4 * howMannyAfterFirst }, { stimOnOffset + 4 * (howMannyAfterFirst + howManyAfterSecond) }) {
+    override fun toString(): String = "RASOn_${howMannyAfterFirst}_$howManyAfterSecond"
+}
+
+/**
+ * In this case, read data between howManyAfterFirst and howManyAfter
+ */
+class RandomAfterEvent(dataReader: SpikeReader, private val event: Trial.() -> Int, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { event() + 4 * howMannyAfterFirst }, { event() + 4 * (howMannyAfterFirst + howManyAfterSecond) })
