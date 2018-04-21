@@ -2,7 +2,7 @@ package data_conversion.exporter;
 
 import algorithm.extractor.feature.SingleValueFeatureExtractor;
 import algorithm.extractor.value.SpikesPerSec;
-import algorithm.processor.UnitSelectorKt;
+import algorithm.processor.SelectorKt;
 import data_conversion.converter.FileConverterFactory;
 import data_conversion.file_utility.FileTypes;
 import data_conversion.file_utility.SpikesTypes;
@@ -18,7 +18,7 @@ public class FireRateDataExporter extends DataExporter {
     public void exportData(String basePath, String fileName, FileTypes fileType, Timestamps timestamps, SpikesTypes spikesType) {
 
         List<TrialData> trialData = super.readTrialDataAccordingToTimestamp(basePath, timestamps, spikesType);
-        trialData = UnitSelectorKt.removeIfNotEnoughSpikes(trialData, 500);
+        trialData = SelectorKt.removeIfNotEnoughSpikes(trialData, 500);
 
         SingleValueFeatureExtractor singleValueFeatureExtractor = new SingleValueFeatureExtractor();
         SpikesPerSec spikesPerSec = new SpikesPerSec(super.getSpikeMetadata().getWaveformInternalSamplingFrequency());

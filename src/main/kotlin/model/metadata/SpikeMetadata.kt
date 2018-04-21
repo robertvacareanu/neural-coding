@@ -4,7 +4,7 @@ package model.metadata
  * Created by robert on 3/23/18.
  * A data class that helps in treating the same both
  * sorted and unsorted spikes because even though they hold
- * data from different sources, they hold the same data: spikes
+ * data from different sources, they hold the same data: spike information
  */
 data class SpikeMetadata(
         val basePath: String,

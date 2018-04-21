@@ -14,6 +14,7 @@ import model.metadata.SpikeMetadata;
 import reader.MetadataReader;
 import reader.spikes.DataSpikeReader;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class DataExporter {
@@ -33,7 +34,7 @@ public abstract class DataExporter {
             this.spikeMetadata = new SpikeMetadata(metadataReader.readSPKTWE());
         }
 
-        DataSpikeReader dataReader = new DataSpikeReader(metadataReader.readETI(), spikeMetadata);
+        DataSpikeReader dataReader = new DataSpikeReader(metadataReader.readETI(), spikeMetadata, new LinkedList<>());
 
         List<Trial> trialsList = dataReader.readTrials();
         return new Pair<>(dataReader, trialsList);
