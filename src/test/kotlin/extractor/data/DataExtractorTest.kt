@@ -1,11 +1,12 @@
 package extractor.data
 
 import algorithm.extractor.data.*
-import org.junit.Test
-import reader.MetadataReader
 import main.almostEqual
 import model.metadata.SpikeMetadata
+import org.junit.Test
+import reader.MetadataReader
 import reader.spikes.DataSpikeReader
+import kotlin.math.abs
 
 /**
  * Created by robert on 2/19/18.
@@ -347,6 +348,216 @@ class DataExtractorTest {
 
         assert(testData[1].spikeData[1][2].waveform[0] almostEqual 31.42084)
         assert(testData[1].spikeData[1][2].waveform[19] almostEqual -65.84263)
+
+    }
+
+    @Test
+    fun randomAfterStimOn() {
+        val mr = MetadataReader(basePath)
+        val dr = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
+
+        val trials = dr.readTrials()
+
+        var randomAfterStimOn = RandomAfterStimOn(dr, 0, 32000)
+
+        var testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].orientation == 0)
+
+        assert(testData[0].spikeData[0][0].waveform[0] almostEqual -12.0737)
+        assert(testData[0].spikeData[0][0].waveform[1] almostEqual -5.02141)
+        assert(testData[0].spikeData[0][1].waveform[0] almostEqual 66.00766)
+        assert(testData[0].spikeData[0][2].waveform[0] almostEqual 4.630025)
+        assert(testData[0].spikeData[0][3].waveform[0] almostEqual 33.55904)
+        assert(testData[0].spikeData[0][4].waveform[0] almostEqual 20.03858)
+        assert(testData[0].spikeData[0][5].waveform[0] almostEqual 21.91661)
+        assert(testData[0].spikeData[0][6].waveform[0] almostEqual 7.803526)
+        assert(testData[0].spikeData[0][60].waveform[0] almostEqual 29.15911)
+        assert(testData[0].spikeData[0][106].waveform[0] almostEqual -2.86156)
+        assert(testData[0].spikeData[0][106].waveform[1] almostEqual 0.2091425)
+        assert(testData[0].spikeData[0][106].waveform[2] almostEqual 0.5920082)
+        assert(testData[0].spikeData[0][106].waveform[3] almostEqual 15.99877)
+        assert(testData[0].spikeData[0][106].waveform[4] almostEqual 13.9175)
+        assert(testData[0].spikeData[0][106].waveform[5] almostEqual 33.73422)
+        assert(testData[0].spikeData[0][106].waveform[6] almostEqual 16.05228)
+        assert(testData[0].spikeData[0][106].waveform[7] almostEqual 24.42965)
+        assert(testData[0].spikeData[0][106].waveform[32] almostEqual 26.06567)
+        assert(testData[0].spikeData[0][106].waveform[33] almostEqual 15.64846)
+        assert(testData[0].spikeData[0][106].waveform[34] almostEqual 24.88918)
+        assert(testData[0].spikeData[0][106].waveform[35] almostEqual 14.19616)
+        assert(testData[0].spikeData[0][106].waveform[36] almostEqual 13.16541)
+        assert(testData[0].spikeData[0][106].waveform[37] almostEqual 15.13039)
+        assert(testData[0].spikeData[0][106].waveform[38] almostEqual 20.92668)
+
+        assert(testData[0].spikeData[1][0].waveform[0] almostEqual -0.03298917)
+
+        assert(testData[1].orientation == 90)
+        assert(testData[1].spikeData[0][0].waveform[0] almostEqual -18.49579)
+        assert(testData[1].spikeData[0][0].waveform[1] almostEqual -11.17014)
+        assert(testData[1].spikeData[0][1].waveform[0] almostEqual 4.989871)
+        assert(testData[1].spikeData[0][1].waveform[1] almostEqual -4.603093)
+        assert(testData[1].spikeData[1][0].waveform[0] almostEqual 31.23073)
+        assert(testData[1].spikeData[1][0].waveform[1] almostEqual 22.10519)
+        assert(testData[1].spikeData[1][1].waveform[0] almostEqual -6.620437)
+        assert(testData[1].spikeData[1][1].waveform[1] almostEqual -17.91105)
+
+        // Ignore first 1000 floats
+        randomAfterStimOn = RandomAfterStimOn(dr, 968, 60000)
+
+        testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].orientation == 0)
+
+        assert(testData[0].spikeData[0][0].waveform[0] almostEqual 66.00766)
+        assert(testData[0].spikeData[0][0].waveform[1] almostEqual 65.00742)
+        assert(testData[0].spikeData[0][0].waveform[2] almostEqual 53.02333)
+        assert(abs(testData[0].spikeData[0][0].waveform[19] - (-170.6389)) < 0.0001)
+        assert(abs(testData[0].spikeData[0][0].waveform[20] - (-163.4559)) < 0.0001)
+        assert(abs(testData[0].spikeData[0][0].waveform[21] - (-132.0076)) < 0.0001)
+
+        assert(testData[0].spikeData[0][1].waveform[0] almostEqual 4.630025)
+        assert(testData[0].spikeData[0][1].waveform[1] almostEqual 2.339633)
+        assert(testData[0].spikeData[0][1].waveform[2] almostEqual 14.07165)
+        assert(testData[0].spikeData[0][1].waveform[3] almostEqual 12.08744)
+
+        assert(testData[0].spikeData[0][2].waveform[0] almostEqual 33.55904)
+        assert(testData[0].spikeData[0][2].waveform[1] almostEqual 41.26452)
+        assert(testData[0].spikeData[0][2].waveform[2] almostEqual 57.38702)
+        assert(testData[0].spikeData[0][3].waveform[0] almostEqual 20.03858)
+        assert(testData[0].spikeData[0][3].waveform[19] almostEqual -60.77736)
+
+
+        assert(testData[1].orientation == 90)
+
+        assert(testData[1].spikeData[0][0].waveform[0] almostEqual 4.989871)
+
+        assert(testData[1].spikeData[0][0].waveform[1] almostEqual -4.603093)
+        assert(testData[1].spikeData[0][0].waveform[2] almostEqual -8.502367)
+        assert(testData[1].spikeData[0][0].waveform[19] almostEqual -57.72361)
+        assert(testData[1].spikeData[0][0].waveform[20] almostEqual -54.39449)
+        assert(testData[1].spikeData[0][0].waveform[21] almostEqual -39.1695)
+
+        randomAfterStimOn = RandomAfterStimOn(dr, 1250, 60000)
+        testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].spikeData[0][0].waveform[0] almostEqual 20.03858)
+        assert(testData[0].spikeData[0][0].waveform[1] almostEqual 29.60803)
+        assert(testData[0].spikeData[0][1].waveform[0] almostEqual 21.91661)
+        assert(testData[0].spikeData[0][1].waveform[1] almostEqual 27.95836)
+
+        assert(testData[0].spikeData[1][0].waveform[0] almostEqual 9.352667)
+        assert(testData[0].spikeData[1][0].waveform[1] almostEqual 24.95034)
+
+        assert(testData[0].spikeData[1][1].waveform[0] almostEqual 16.00261)
+        assert(testData[0].spikeData[1][1].waveform[1] almostEqual 27.40732)
+
+        println(trials[0].stimOnOffset)
+        println(trials[1].stimOnOffset)
+
+    }
+
+    @Test
+    fun randomAfterEvent() {
+        val mr = MetadataReader(basePath)
+        val dr = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
+
+        val trials = dr.readTrials()
+
+        var randomAfterStimOn = RandomAfterStimOn(dr, 0, 32000)
+
+        var testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].orientation == 0)
+
+        assert(testData[0].spikeData[0][0].waveform[0] almostEqual -12.0737)
+        assert(testData[0].spikeData[0][0].waveform[1] almostEqual -5.02141)
+        assert(testData[0].spikeData[0][1].waveform[0] almostEqual 66.00766)
+        assert(testData[0].spikeData[0][2].waveform[0] almostEqual 4.630025)
+        assert(testData[0].spikeData[0][3].waveform[0] almostEqual 33.55904)
+        assert(testData[0].spikeData[0][4].waveform[0] almostEqual 20.03858)
+        assert(testData[0].spikeData[0][5].waveform[0] almostEqual 21.91661)
+        assert(testData[0].spikeData[0][6].waveform[0] almostEqual 7.803526)
+        assert(testData[0].spikeData[0][60].waveform[0] almostEqual 29.15911)
+        assert(testData[0].spikeData[0][106].waveform[0] almostEqual -2.86156)
+        assert(testData[0].spikeData[0][106].waveform[1] almostEqual 0.2091425)
+        assert(testData[0].spikeData[0][106].waveform[2] almostEqual 0.5920082)
+        assert(testData[0].spikeData[0][106].waveform[3] almostEqual 15.99877)
+        assert(testData[0].spikeData[0][106].waveform[4] almostEqual 13.9175)
+        assert(testData[0].spikeData[0][106].waveform[5] almostEqual 33.73422)
+        assert(testData[0].spikeData[0][106].waveform[6] almostEqual 16.05228)
+        assert(testData[0].spikeData[0][106].waveform[7] almostEqual 24.42965)
+        assert(testData[0].spikeData[0][106].waveform[32] almostEqual 26.06567)
+        assert(testData[0].spikeData[0][106].waveform[33] almostEqual 15.64846)
+        assert(testData[0].spikeData[0][106].waveform[34] almostEqual 24.88918)
+        assert(testData[0].spikeData[0][106].waveform[35] almostEqual 14.19616)
+        assert(testData[0].spikeData[0][106].waveform[36] almostEqual 13.16541)
+        assert(testData[0].spikeData[0][106].waveform[37] almostEqual 15.13039)
+        assert(testData[0].spikeData[0][106].waveform[38] almostEqual 20.92668)
+
+        assert(testData[0].spikeData[1][0].waveform[0] almostEqual -0.03298917)
+
+        assert(testData[1].orientation == 90)
+        assert(testData[1].spikeData[0][0].waveform[0] almostEqual -18.49579)
+        assert(testData[1].spikeData[0][0].waveform[1] almostEqual -11.17014)
+        assert(testData[1].spikeData[0][1].waveform[0] almostEqual 4.989871)
+        assert(testData[1].spikeData[0][1].waveform[1] almostEqual -4.603093)
+        assert(testData[1].spikeData[1][0].waveform[0] almostEqual 31.23073)
+        assert(testData[1].spikeData[1][0].waveform[1] almostEqual 22.10519)
+        assert(testData[1].spikeData[1][1].waveform[0] almostEqual -6.620437)
+        assert(testData[1].spikeData[1][1].waveform[1] almostEqual -17.91105)
+
+        // Ignore first 1000 floats
+        randomAfterStimOn = RandomAfterStimOn(dr, 968, 60000)
+
+        testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].orientation == 0)
+
+        assert(testData[0].spikeData[0][0].waveform[0] almostEqual 66.00766)
+        assert(testData[0].spikeData[0][0].waveform[1] almostEqual 65.00742)
+        assert(testData[0].spikeData[0][0].waveform[2] almostEqual 53.02333)
+        assert(abs(testData[0].spikeData[0][0].waveform[19] - (-170.6389)) < 0.0001)
+        assert(abs(testData[0].spikeData[0][0].waveform[20] - (-163.4559)) < 0.0001)
+        assert(abs(testData[0].spikeData[0][0].waveform[21] - (-132.0076)) < 0.0001)
+
+        assert(testData[0].spikeData[0][1].waveform[0] almostEqual 4.630025)
+        assert(testData[0].spikeData[0][1].waveform[1] almostEqual 2.339633)
+        assert(testData[0].spikeData[0][1].waveform[2] almostEqual 14.07165)
+        assert(testData[0].spikeData[0][1].waveform[3] almostEqual 12.08744)
+
+        assert(testData[0].spikeData[0][2].waveform[0] almostEqual 33.55904)
+        assert(testData[0].spikeData[0][2].waveform[1] almostEqual 41.26452)
+        assert(testData[0].spikeData[0][2].waveform[2] almostEqual 57.38702)
+        assert(testData[0].spikeData[0][3].waveform[0] almostEqual 20.03858)
+        assert(testData[0].spikeData[0][3].waveform[19] almostEqual -60.77736)
+
+
+        assert(testData[1].orientation == 90)
+
+        assert(testData[1].spikeData[0][0].waveform[0] almostEqual 4.989871)
+
+        assert(testData[1].spikeData[0][0].waveform[1] almostEqual -4.603093)
+        assert(testData[1].spikeData[0][0].waveform[2] almostEqual -8.502367)
+        assert(testData[1].spikeData[0][0].waveform[19] almostEqual -57.72361)
+        assert(testData[1].spikeData[0][0].waveform[20] almostEqual -54.39449)
+        assert(testData[1].spikeData[0][0].waveform[21] almostEqual -39.1695)
+
+        randomAfterStimOn = RandomAfterStimOn(dr, 1250, 60000)
+        testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].spikeData[0][0].waveform[0] almostEqual 20.03858)
+        assert(testData[0].spikeData[0][0].waveform[1] almostEqual 29.60803)
+        assert(testData[0].spikeData[0][1].waveform[0] almostEqual 21.91661)
+        assert(testData[0].spikeData[0][1].waveform[1] almostEqual 27.95836)
+
+        assert(testData[0].spikeData[1][0].waveform[0] almostEqual 9.352667)
+        assert(testData[0].spikeData[1][0].waveform[1] almostEqual 24.95034)
+
+        assert(testData[0].spikeData[1][1].waveform[0] almostEqual 16.00261)
+        assert(testData[0].spikeData[1][1].waveform[1] almostEqual 27.40732)
+
+        println(trials[0].stimOnOffset)
+        println(trials[1].stimOnOffset)
 
     }
 }

@@ -1,5 +1,6 @@
 package reader.spikes
 
+import algorithm.multiFilter
 import model.Spike
 import model.Trial
 import model.metadata.EtiMetadata
@@ -11,8 +12,9 @@ import java.io.File
 /**
  * Created by robert on 3/23/18.
  * Provides the same reader for accessing both sorted and unsorted data sets
+ * Depending on what [@see SpikeMetadata]
  */
-class DataSpikeReader(private val etiMetadata: EtiMetadata, private val spikeMetadata: SpikeMetadata) : SpikeReader {
+class DataSpikeReader(private val etiMetadata: EtiMetadata, private val spikeMetadata: SpikeMetadata, private val filters: List<Trial.() -> Boolean> = listOf()) : SpikeReader {
 
     private fun spikeCountUntil(channel: Int): Int =
         if (channel > 0 && channel <= spikeMetadata.spikesPerUnit.size) {
@@ -62,10 +64,11 @@ class DataSpikeReader(private val etiMetadata: EtiMetadata, private val spikeMet
                             trialStartOffset = timestamps[timestampIndex],
                             stimOnOffset = timestamps[timestampIndex + 1],
                             stimOffOffset = timestamps[timestampIndex + 2],
-                            trialEndOffset = timestamps[timestampIndex + 3])
+                            trialEndOffset = timestamps[timestampIndex + 3],
+                            contrast = strings[2].split(" ").last().toInt())
                 }
         )
-        return result
+        return result.multiFilter(filters)
     }
 
     override fun numberOfUnits(): Int = spikeMetadata.numberOfUnits
