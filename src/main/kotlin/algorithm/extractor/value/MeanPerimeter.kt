@@ -9,7 +9,7 @@ import java.math.RoundingMode
  * Each value in the result float array represents the mean perimeter for a particular trial
  * The Collection from Collection<TrialData> represents all the trials having each one the recorded data for each channel
  */
-class MeanPerimeter(private val waveformInternalSamplingFrequency: Float, private val spikeOffset: Int) : ValueExtractor<Spike, Float> {
+class MeanPerimeter(private val waveformInternalSamplingFrequency: Float, private val spikeOffset: Int, private val emptyValue: Float = 0f) : ValueExtractor<Spike, Float> {
     override fun extractValue(values: Array<Spike>): Float =
             if (values.isNotEmpty()) {
                 values.fold(BigDecimal.ZERO) { acc, spike ->
@@ -22,6 +22,6 @@ class MeanPerimeter(private val waveformInternalSamplingFrequency: Float, privat
                     acc + (perimeterForSpike.fold(BigDecimal.ZERO) { spikeAcc, data -> spikeAcc + BigDecimal.valueOf(data) })
                 }.divide(BigDecimal.valueOf(values.size.toLong()), 6, RoundingMode.HALF_UP).toFloat()
             } else {
-                0f
+                emptyValue
             }
 }
