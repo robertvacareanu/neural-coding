@@ -58,7 +58,7 @@ def chance_level(paths, orientation, nr_run_time):
     plt.axvline(x.mean(), color='magenta', linewidth=1, label='Mean')
     plt.hist(x, bins='auto', normed=True)
     plt.title("Correlation shuffled labels FR_MA orientation: %d" % orientation[0])
-    plt.savefig("../plots/correlation_FR_MA_shuffled_labels_%s.png" % orientation[0])
+    plt.savefig("../plots_all_contrasts/correlation_FR_MA_shuffled_labels_%s.png" % orientation[0])
     plt.show()
 
 
