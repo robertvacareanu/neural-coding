@@ -47,6 +47,8 @@ fun Spike.toGraph(name: String, width: Int = 500, height: Int = 500) {
     ChartUtilities.writeChartAsPNG(FileOutputStream(File(name)), ds, width, height)
 }
 
+typealias DataPoint = Pair<Int, FloatArray>
+
 /**
  * A utility function to avoid calls like: data[0].second[3]
  */
@@ -61,7 +63,8 @@ val Pair<Int, FloatArray>.orientation: Int
 
 /**
  * Commonly used in tests to compare doubles
+ * Be aware of the precision of the used type
  */
-inline infix fun Number.almostEqual(number: Number): Boolean {
+infix fun Number.almostEqual(number: Number): Boolean {
     return abs(this.toDouble() - number.toDouble()) < 0.00001
 }

@@ -199,12 +199,11 @@ class DataExtractorTest {
 
         val trials = dr.readTrials()
 
-        val featureExtractor = AfterStimOn(dr, (spikeMetadata.waveformInternalSamplingFrequency / 10).toInt()) // 3200 => 0.1 sec
+        val featureExtractor = AfterStimOn(dr, (spikeMetadata.waveformInternalSamplingFrequency).toInt()) // 32000 => 1 sec
 
         val testData = featureExtractor.extractData(listOf(trials[0], trials[1]))
 
         assert(testData[0].orientation == 0)
-        assert(testData[0].spikeData[0].size == 12)
 
 
         assert(testData[0].spikeData[0][0].waveform[0] almostEqual -12.0737)
@@ -236,7 +235,6 @@ class DataExtractorTest {
 
 
         assert(testData[1].orientation == 90)
-        assert(testData[1].spikeData[0].size == 17)
 
         assert(testData[1].spikeData[0][0].waveform[0] almostEqual -18.49579)
         assert(testData[1].spikeData[0][0].waveform[1] almostEqual -11.17014)
@@ -284,14 +282,13 @@ class DataExtractorTest {
 
         val trials = dr.readTrials()
 
-        val featureExtractor = AfterStimOff(dr, (spikeMetadata.waveformInternalSamplingFrequency / 10).toInt()) // 3200 => 0.1 sec
+        val featureExtractor = AfterStimOff(dr, (spikeMetadata.waveformInternalSamplingFrequency).toInt()) // 32000 => 1 sec
 
         val testData = featureExtractor.extractData(listOf(trials[0], trials[1]))
 
 
 
         assert(testData[0].orientation == 0)
-        assert(testData[0].spikeData[0].size == 12)
 
 
         assert(testData[0].spikeData[0][0].waveform[0] almostEqual 4.983692)
@@ -307,7 +304,6 @@ class DataExtractorTest {
 
 
         assert(testData[1].orientation == 90)
-        assert(testData[1].spikeData[0].size == 9)
 
 
         assert(testData[1].spikeData[0][0].waveform[0] almostEqual 5.316537)
@@ -338,8 +334,6 @@ class DataExtractorTest {
         assert(testData[1].spikeData[0][8].waveform[38] almostEqual 23.92834)
 
 
-        assert(testData[1].spikeData[1].size == 3)
-
         assert(testData[1].spikeData[1][0].waveform[0] almostEqual 20.18396)
         assert(testData[1].spikeData[1][0].waveform[1] almostEqual 4.552)
 
@@ -358,7 +352,7 @@ class DataExtractorTest {
 
         val trials = dr.readTrials()
 
-        var randomAfterStimOn = RandomAfterStimOn(dr, 0, 32000)
+        var randomAfterStimOn = RandomAfterStimOn(dr, 0, 96000)
 
         var testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
 
@@ -401,8 +395,8 @@ class DataExtractorTest {
         assert(testData[1].spikeData[1][1].waveform[0] almostEqual -6.620437)
         assert(testData[1].spikeData[1][1].waveform[1] almostEqual -17.91105)
 
-        // Ignore first 1000 floats
-        randomAfterStimOn = RandomAfterStimOn(dr, 968, 60000)
+        // Ignore first 3872 floats
+        randomAfterStimOn = RandomAfterStimOn(dr, 3872, 60000)
 
         testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
 
@@ -437,7 +431,7 @@ class DataExtractorTest {
         assert(testData[1].spikeData[0][0].waveform[20] almostEqual -54.39449)
         assert(testData[1].spikeData[0][0].waveform[21] almostEqual -39.1695)
 
-        randomAfterStimOn = RandomAfterStimOn(dr, 1250, 60000)
+        randomAfterStimOn = RandomAfterStimOn(dr, 6000, 60000)
         testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
 
         assert(testData[0].spikeData[0][0].waveform[0] almostEqual 20.03858)
@@ -451,8 +445,6 @@ class DataExtractorTest {
         assert(testData[0].spikeData[1][1].waveform[0] almostEqual 16.00261)
         assert(testData[0].spikeData[1][1].waveform[1] almostEqual 27.40732)
 
-        println(trials[0].stimOnOffset)
-        println(trials[1].stimOnOffset)
 
     }
 
@@ -463,9 +455,9 @@ class DataExtractorTest {
 
         val trials = dr.readTrials()
 
-        var randomAfterStimOn = RandomAfterStimOn(dr, 0, 32000)
+        var randomAfterEvent = RandomAfterEvent(dr, { stimOnOffset }, 0, 96000)
 
-        var testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+        var testData = randomAfterEvent.extractData(listOf(trials[0], trials[1]))
 
         assert(testData[0].orientation == 0)
 
@@ -506,10 +498,10 @@ class DataExtractorTest {
         assert(testData[1].spikeData[1][1].waveform[0] almostEqual -6.620437)
         assert(testData[1].spikeData[1][1].waveform[1] almostEqual -17.91105)
 
-        // Ignore first 1000 floats
-        randomAfterStimOn = RandomAfterStimOn(dr, 968, 60000)
+        // Ignore first 3872 floats
+        randomAfterEvent = RandomAfterEvent(dr, { stimOnOffset }, 3872, 60000)
 
-        testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+        testData = randomAfterEvent.extractData(listOf(trials[0], trials[1]))
 
         assert(testData[0].orientation == 0)
 
@@ -542,8 +534,8 @@ class DataExtractorTest {
         assert(testData[1].spikeData[0][0].waveform[20] almostEqual -54.39449)
         assert(testData[1].spikeData[0][0].waveform[21] almostEqual -39.1695)
 
-        randomAfterStimOn = RandomAfterStimOn(dr, 1250, 60000)
-        testData = randomAfterStimOn.extractData(listOf(trials[0], trials[1]))
+        randomAfterEvent = RandomAfterEvent(dr, { stimOnOffset }, 6000, 60000)
+        testData = randomAfterEvent.extractData(listOf(trials[0], trials[1]))
 
         assert(testData[0].spikeData[0][0].waveform[0] almostEqual 20.03858)
         assert(testData[0].spikeData[0][0].waveform[1] almostEqual 29.60803)
@@ -556,8 +548,14 @@ class DataExtractorTest {
         assert(testData[0].spikeData[1][1].waveform[0] almostEqual 16.00261)
         assert(testData[0].spikeData[1][1].waveform[1] almostEqual 27.40732)
 
-        println(trials[0].stimOnOffset)
-        println(trials[1].stimOnOffset)
+        randomAfterEvent = RandomAfterEvent(dr, { trialStartOffset }, 0, 4000)
+        testData = randomAfterEvent.extractData(listOf(trials[0], trials[1]))
+
+        assert(testData[0].spikeData[0][0].waveform[0] almostEqual -9.292385)
+        assert(testData[0].spikeData[0][0].waveform[1] almostEqual -2.997954)
+        assert(testData[0].spikeData[0][1].waveform[0] almostEqual -24.78477)
+        assert(testData[0].spikeData[0][1].waveform[1] almostEqual -2.421317)
+//        print(testData[0].spikeData[0][0])
 
     }
 }

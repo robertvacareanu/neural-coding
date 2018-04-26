@@ -1,5 +1,6 @@
 package algorithm.extractor.feature
 
+import main.DataPoint
 import model.Spike
 import model.TrialData
 
@@ -9,8 +10,8 @@ import model.TrialData
  * however, a value of 0.5 would mean that if, for example first window goes from 0 to 100, the second one goes from 50 to 150, assuming that
  * the window length is 100
  */
-class WindowValueFeatureExtractor(private val windowLength: Int, private val overlap: Double) : FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>> {
-    override fun extract(data: Collection<TrialData>, extractor: (Array<Spike>) -> Float): List<Pair<Int, FloatArray>> {
+class WindowValueFeatureExtractor(private val windowLength: Int, private val overlap: Double) : FeatureExtractor<TrialData, List<DataPoint>> {
+    override fun extract(data: Collection<TrialData>, extractor: (Array<Spike>) -> Float): List<DataPoint> {
         return data.map {
             val step = windowLength * overlap
             val result = mutableListOf<Float>()

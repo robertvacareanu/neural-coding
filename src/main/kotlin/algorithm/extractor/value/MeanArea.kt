@@ -8,7 +8,7 @@ import java.math.RoundingMode
  * Each value in the result float array represents the mean area (Integral) for a particular trial
  * The Collection from Collection<TrialData> represents all the trials having each one the recorded data for each channel
  */
-class MeanArea(private val waveformInternalSamplingFrequency: Float, private val spikeOffset: Int) : ValueExtractor<Spike, Float> {
+class MeanArea(private val waveformInternalSamplingFrequency: Float, private val spikeOffset: Int, private val emptyValue: Float = 0f) : ValueExtractor<Spike, Float> {
     override fun extractValue(values: Array<Spike>): Float {
         infix operator fun Pair<Double, Double>.times(p: Pair<Double, Double>): Double = first * p.second - second * p.first
         return if (values.isNotEmpty()) {
@@ -29,12 +29,12 @@ class MeanArea(private val waveformInternalSamplingFrequency: Float, private val
 
             }
             if(validUnits == 0) {
-                0f
+                emptyValue
             } else {
                 result.divide(BigDecimal.valueOf(2 * validUnits.toLong()), 6, RoundingMode.HALF_UP).abs().toFloat()
             }
         } else {
-            0f
+            emptyValue
         }
     }
 
