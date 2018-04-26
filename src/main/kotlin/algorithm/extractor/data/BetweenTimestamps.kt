@@ -56,21 +56,23 @@ class BetweenStim(dataReader: SpikeReader) : BetweenTimestamps(dataReader, { sti
 /**
  * In this case, the data considered is from t2 until t2 + howMany
  */
-class AfterStimOn(dataReader: SpikeReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOnOffset + 4 * howMany })
+class AfterStimOn(dataReader: SpikeReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOnOffset }, { stimOnOffset + howMany })
 
 /**
  * In this case, the data considered is from t3 until t3 + howMany
  */
-class AfterStimOff(dataReader: SpikeReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOffOffset }, { stimOffOffset + 4 * howMany })
+class AfterStimOff(dataReader: SpikeReader, private val howMany: Int) : BetweenTimestamps(dataReader, { stimOffOffset }, { stimOffOffset + howMany })
 
 /**
  * In this case, read data after stim on between specified points
  */
-class RandomAfterStimOn(dataReader: SpikeReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { stimOnOffset + 4 * howMannyAfterFirst }, { stimOnOffset + 4 * (howMannyAfterFirst + howManyAfterSecond) }) {
+class RandomAfterStimOn(dataReader: SpikeReader, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { stimOnOffset + howMannyAfterFirst }, { stimOnOffset + howManyAfterSecond }) {
     override fun toString(): String = "RASOn_${howMannyAfterFirst}_$howManyAfterSecond"
 }
 
 /**
  * In this case, read data between howManyAfterFirst and howManyAfter
  */
-class RandomAfterEvent(dataReader: SpikeReader, private val event: Trial.() -> Int, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { event() + 4 * howMannyAfterFirst }, { event() + 4 * (howMannyAfterFirst + howManyAfterSecond) })
+class RandomAfterEvent(dataReader: SpikeReader, private val event: Trial.() -> Int, private val howMannyAfterFirst: Int, private val howManyAfterSecond: Int) : BetweenTimestamps(dataReader, { event() + howMannyAfterFirst }, { event() + howManyAfterSecond }) {
+    override fun toString(): String = "RAE_${howMannyAfterFirst}_$howManyAfterSecond"
+}
