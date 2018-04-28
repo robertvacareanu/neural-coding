@@ -201,6 +201,7 @@ class FeatureExtractorTest {
         (0 until s1.size - 1).forEach {
             spike1Result += s1[it].first * s1[it+1].second - s1[it].second * s1[it+1].first
         }
+        spike1Result += s1.last().first * s1.first().second - s1.last().second * s1.first().first
 
         assert((spike1Result)/2 almostEqual feature[0].second[0])
 

@@ -14,13 +14,14 @@ class MeanArea(private val waveformInternalSamplingFrequency: Float, private val
         return if (values.isNotEmpty()) {
             var validUnits = 0
             val result = values.fold(BigDecimal.ZERO) { acc, spike ->
-                val points = spike.waveform.mapIndexed { index, float -> Pair(spike.timestamp + (index / waveformInternalSamplingFrequency.toDouble()), float.toDouble()) }//.filter { values.second < 0 }
+                val points = spike.waveform.mapIndexed { index, float -> Pair(index / waveformInternalSamplingFrequency.toDouble(), float.toDouble()) }
                 val onlySpike = isolate(points, spikeOffset)
                 if (onlySpike.size > 2) {
                     val areaForSpike = mutableListOf<Double>()
                     (0 until onlySpike.size - 1).mapTo(areaForSpike) {
                         onlySpike[it] * onlySpike[it + 1]
                     }
+                    areaForSpike.add(onlySpike.last() * onlySpike.first())
                     validUnits++
                     acc + (areaForSpike.fold(BigDecimal.ZERO) { spikeAcc, data -> spikeAcc + BigDecimal.valueOf(data) })
                 } else {
