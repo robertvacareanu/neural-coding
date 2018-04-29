@@ -32,7 +32,7 @@ class MeanArea(private val waveformInternalSamplingFrequency: Float, private val
             if(validUnits == 0) {
                 emptyValue
             } else {
-                result.divide(BigDecimal.valueOf(2 * validUnits.toLong()), 6, RoundingMode.HALF_UP).abs().toFloat()
+                result.divide(BigDecimal.valueOf(2 * validUnits.toLong()), 32, RoundingMode.HALF_UP).abs().toFloat()
             }
         } else {
             emptyValue

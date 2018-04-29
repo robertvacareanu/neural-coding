@@ -20,7 +20,7 @@ class MeanPerimeter(private val waveformInternalSamplingFrequency: Float, privat
                         Point2D.distance(onlySpikes[it].first, onlySpikes[it].second, onlySpikes[it + 1].first, onlySpikes[it + 1].second)
                     }
                     acc + (perimeterForSpike.fold(BigDecimal.ZERO) { spikeAcc, data -> spikeAcc + BigDecimal.valueOf(data) })
-                }.divide(BigDecimal.valueOf(values.size.toLong()), 6, RoundingMode.HALF_UP).toFloat()
+                }.divide(BigDecimal.valueOf(values.size.toLong()), 32, RoundingMode.HALF_UP).toFloat()
             } else {
                 emptyValue
             }

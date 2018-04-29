@@ -16,7 +16,7 @@ class MeanAmplitude(private val spikeOffset: Int, private val emptyValue: Float 
                     acc + (BigDecimal.valueOf(abs(spike[spikeOffset].toDouble())))
                 }
                 val denominator = BigDecimal.valueOf(values.size.toDouble())
-                nominator.divide(denominator, 6, RoundingMode.HALF_UP).toFloat()
+                nominator.divide(denominator, 32, RoundingMode.HALF_UP).toFloat()
             } else {
                 emptyValue
             }
