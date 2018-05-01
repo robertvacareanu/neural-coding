@@ -14,30 +14,26 @@ style.use("ggplot")
 from sklearn import svm
 
 
-def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp, pca_comp, title, c, samplingRate=32000):
-
+def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp, pca_comp, title, c,
+                samplingRate=32000):
     if aliases is None:
         text = paths
     else:
         text = aliases
 
-
     # colors = []
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
     for index, path in enumerate(paths):
-        alabala=0
         for dirpath, _, file_paths in os.walk(path):
             label_names = []
             s = []
-            t = []
             file_paths.sort(lambda x, y: cmp(int(x.split('_')[-1]), int(y.split('_')[-1])))
             for fp in file_paths:
                 file_path = os.path.join(dirpath, fp)
                 data = pd.read_csv(file_path, header=None)
                 raw_data = data.iloc[:, :-1].values
                 Y = data.iloc[:, -1].values
-
                 if raw_data.shape[1] != 1:
                     if lda_comp is not None:
                         lda = LDA(n_components=lda_comp)
@@ -50,16 +46,27 @@ def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp,
 
                     interval_splits = [int(y) for y in file_path.split('_')[-2:]]
                     for i in range(0, len(interval_splits), 2):
-                        first = interval_splits[i]/float(samplingRate)
-                        second = interval_splits[i + 1]/float(samplingRate)
-                        if interval_splits[i+1] == 85507:
-                            label_names.append(''.join([str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's', '\nStim OFF']))
+                        first = interval_splits[i] / float(samplingRate)
+                        second = interval_splits[i + 1] / float(samplingRate)
+                        if interval_splits[i + 1] == 117574:
+                            label_names.append(''.join(
+                                [str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's',
+                                 '\nStim OFF']))
                         elif interval_splits[i] == 0:
-                            label_names.append(''.join([str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's', '\nStim ON']))
-                        elif interval_splits[i+1] == 101539:
-                            label_names.append(''.join([str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's', '\nTrial END']))
+                            label_names.append(''.join(
+                                [str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's',
+                                 '\nTrial Start']))
+                        elif interval_splits[i] == 32066:
+                            label_names.append(''.join(
+                                [str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's',
+                                 '\nStim ON']))
+                        elif interval_splits[i + 1] == 133606:
+                            label_names.append(''.join(
+                                [str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's',
+                                 '\nTrial END']))
                         else:
-                            label_names.append(''.join([str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's']))
+                            label_names.append(''.join(
+                                [str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's']))
 
                     X_norm = (X - X.min()) / (X.max() - X.min())
                     new_x = X_norm[np.logical_or(Y == orientation1, Y == orientation2)]
@@ -72,20 +79,18 @@ def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp,
                         for i, (train, test) in enumerate(skf.split(new_x, new_y)):
                             xtrain, xval = new_x[train], new_x[test]
                             ytrain, yval = new_y[train], new_y[test]
-                            clf = OneVsOneClassifier(svm.NuSVC(kernel='linear'))
+                            clf = OneVsOneClassifier(svm.NuSVC(kernel='rbf'))
                             clf.fit(xtrain, ytrain)
                             time += 1
                             score += clf.score(xval, yval)
 
                     s.append(score / time)
-                    t.append(alabala)
 
             if c is None:
                 color = np.random.rand(3)
                 ax1.plot(label_names, s, marker='o', label=text[index], color=color)
             else:
                 ax1.plot(label_names, s, marker='o', label=text[index], color=c[index])
-
 
     plt.xlabel("Data set number")
     plt.ylabel("Accuracy")
@@ -101,7 +106,11 @@ def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp,
         plt.show()
 
 
-parser = argparse.ArgumentParser(description="Script to plot the results of applying svm to the provided files")
+parser = argparse.ArgumentParser(
+    description="""Script to plot the results of applying svm to the provided files. 
+    Expects a list of folders containing the files with the data and outputs a graphic 
+    where each point represents the svm result for a particular file. 
+    Data points of files in the same folder are connected""")
 parser.add_argument("-p", "--path", required=True, nargs="*", help="Path to the folders containing with the features")
 parser.add_argument("-a", "--alias", required=False, default=None, nargs="*",
                     help="Alias for the path files. Match in order")
