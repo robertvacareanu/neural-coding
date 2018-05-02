@@ -20,6 +20,25 @@ fun merge(feature1: List<DataPoint>, feature2: List<DataPoint>, merger: (Float, 
 }
 
 /**
+ * Assumes all elements have the same size as well as that they are in the same order
+ */
+fun aggregate(features: List<List<DataPoint>>): List<DataPoint> {
+    val result = mutableListOf<DataPoint>()
+
+    val numberOfFeatures = features.first().size
+
+    (0 until numberOfFeatures).forEach { trial ->
+        val mergedFeatureValues = mutableListOf<Float>()
+        (0 until features.size).forEach { dataset ->
+            mergedFeatureValues.addAll(features[dataset][trial].second.toList())
+        }
+        result.add(DataPoint(features.first()[trial].first, mergedFeatureValues.toFloatArray()))
+    }
+
+    return result
+}
+
+/**
  * Normalize the data set using (x - min)/(max-min)
  */
 fun normalize(feature: List<DataPoint>): List<DataPoint> {
