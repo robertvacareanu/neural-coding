@@ -17,7 +17,9 @@ import reader.spikes.SpikeReader
 /**
  * Created by robert on 4/19/18.
  * An utility function to simplify the whole process
- * Contains defaults for the most basic approach: single value extractor, unsorted data set, between stim and mean amplitude
+ * The transformers are applied in order, starting from left
+ *  - preProcessing -> after extracting the data using @param dataExtractor
+ *  - postProcessing -> after computing the features with @param valueExtractor using @param featureExtractor
  */
 fun process(spikeReader: SpikeReader,
             valueExtractor: ValueExtractor<Spike, Float>,
@@ -28,10 +30,16 @@ fun process(spikeReader: SpikeReader,
 ): List<DataPoint> =
         postProcessingTransformres.fold(featureExtractor.extract(preProcessingTransformers.fold(dataExtractor.extractData(spikeReader.readTrials())) { acc, function -> function(acc) }, valueExtractor::extractValue)) { acc, function -> function(acc) }
 
-
+/**
+ * An utility function to simplify the whole process
+ * Contains defaults for the most basic approach: single value extractor, unsorted data set, between stim and mean amplitude
+ * The transformers are applied in order, starting from left
+ *  - preProcessing -> after extracting the data using @param dataExtractor
+ *  - postProcessing -> after computing the features with @param valueExtractor using @param featureExtractor
+ */
 fun process(path: String,
-            preProcessingTransformers: List<(TrialData) -> TrialData> = listOf(),
-            postProcessingTransformres: List<(Pair<Int, FloatArray>) -> Pair<Int, FloatArray>> = listOf()
+            preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
+            postProcessingTransformres: List<(List<DataPoint>) -> List<DataPoint>> = listOf()
 ): List<DataPoint> {
     val mr = MetadataReader(path)
     val spktwe = mr.readSPKTWE()
@@ -40,5 +48,5 @@ fun process(path: String,
     val de = BetweenStim(sp)
     val fe = SingleValueFeatureExtractor()
 
-    return fe.extract(de.extractData(sp.readTrials()), ve::extractValue)
+    return postProcessingTransformres.fold(fe.extract(preProcessingTransformers.fold(de.extractData(sp.readTrials())) { acc, function -> function(acc) }, ve::extractValue)) { acc, function -> function(acc) }
 }

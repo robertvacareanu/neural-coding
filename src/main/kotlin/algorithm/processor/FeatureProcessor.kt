@@ -42,16 +42,17 @@ fun aggregate(features: List<List<DataPoint>>): List<DataPoint> {
  * Normalize the data set using (x - min)/(max-min)
  */
 fun normalize(feature: List<DataPoint>): List<DataPoint> {
-    val min = feature.minBy { it.second.min()!! }!!.second.min()!!
-    val max = feature.maxBy { it.second.max()!! }!!.second.max()!!
 
-    val result = mutableListOf<Pair<Int, FloatArray>>()
-    (0 until feature.size).mapTo(result) { trial ->
-        val floatArray = mutableListOf<Float>()
-        (0 until feature[trial].second.size).mapTo(floatArray) {
-            (feature[trial][it] - min)/(max - min)
+    val result = mutableListOf<DataPoint>()
+    result.addAll(feature)
+    val numberOfUnits = feature.first().second.size
+    (0 until numberOfUnits).forEach { unit ->
+        val min = feature.minBy { it[unit] }!![unit]
+        val max = feature.maxBy { it[unit] }!![unit]
+        (0 until feature.size).forEach { trial ->
+            result[trial].second[unit] = (feature[trial][unit] - min)/(max - min)
         }
-        Pair(feature[trial].first, floatArray.toFloatArray())
     }
     return result
+
 }

@@ -9,6 +9,8 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.model_selection import StratifiedKFold
 from sklearn.multiclass import OneVsOneClassifier
+from sklearn.preprocessing import StandardScaler
+
 
 style.use("ggplot")
 from sklearn import svm
@@ -68,7 +70,8 @@ def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp,
                             label_names.append(''.join(
                                 [str('{0:.3f}'.format(first)), 's', '\n-\n', str('{0:.3f}'.format(second)), 's']))
 
-                    X_norm = (X - X.min()) / (X.max() - X.min())
+                    scaler = StandardScaler()
+                    X_norm = scaler.fit_transform(X)
                     new_x = X_norm[np.logical_or(Y == orientation1, Y == orientation2)]
                     new_y = Y[np.logical_or(Y == orientation1, Y == orientation2)]
 

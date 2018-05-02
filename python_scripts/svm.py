@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 style.use("ggplot")
 from sklearn import svm
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.preprocessing import StandardScaler
 
-
-def plot_svm(path, orientation1, orientation2, kernel):
+def plot_svm(path, orientation1, orientation2, kernel, c):
     data = pd.read_csv(path, header=None)
     X = data.iloc[:, :-1].values
     Y = data.iloc[:, -1].values
-    X_norm = (X - X.min()) / (X.max() - X.min())
+    scaler = StandardScaler()
+    X_norm = scaler.fit_transform(X)
 
     lda = LDA(n_components=2)
     lda_transformed = lda.fit_transform(X_norm, Y)
@@ -22,9 +23,8 @@ def plot_svm(path, orientation1, orientation2, kernel):
     new_x = lda_transformed[np.logical_or(Y == orientation1, Y == orientation2)]
     new_y = Y[np.logical_or(Y == orientation1, Y == orientation2)]
 
-    clf = svm.SVC(kernel=kernel, C=1000)
+    clf = svm.SVC(kernel=kernel, C=c)
     clf.fit(new_x, new_y)
-    print(new_x)
 
     xsvm = pd.DataFrame(new_x)
     plt.scatter(xsvm[new_y == orientation1][0], xsvm[new_y == orientation1][1], label=orientation1, c='red')
@@ -55,6 +55,7 @@ parser.add_argument("-p", "--path", nargs='*', required=True, help="Path to the 
 parser.add_argument("-o", "--orientation", nargs="*", type=int, required=False, default=[0, 90],
                     help="Orientation to plot svm for. Default is 0 and 90")
 parser.add_argument("-k", "--kernel", required=False, default='linear', help="Kernel type")
+parser.add_argument("-c", required=False, default=1, type=float, help="Kernel type")
 result = parser.parse_args(sys.argv[1:])
 print(result)
-plot_svm(result.path[0], result.orientation[0], result.orientation[1], result.kernel)
+plot_svm(result.path[0], result.orientation[0], result.orientation[1], result.kernel, result.c)
