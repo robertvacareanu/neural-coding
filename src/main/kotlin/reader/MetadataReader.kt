@@ -123,7 +123,7 @@ class MetadataReader {
     fun readSSD(): SsdMetadata {
         val f = File(ssdPath)
 
-        val lines = f.readLines()//.filter { it != "" }
+        val lines = f.readLines()
         val start = 2
         val offset = 3
 
@@ -156,6 +156,10 @@ class MetadataReader {
         val eventTimestampPath = lines[(start + 12 * offset + (3 * numberOfUnits - 3))]
 
         val eventCodesPath = lines[(start + 13 * offset + (3 * numberOfUnits - 3))]
+
+        if(!spikeTimestampPath.endsWith("ssdst") or !unitStatisticsPath.endsWith("ssdus") or !eventTimestampPath.endsWith("ssdet") or !eventCodesPath.endsWith("ssdec")) {
+            println("Unexpected SSD format")
+        }
 
 
         return SsdMetadata(basePath(spktwePath), version, numberOfUnits, unitNames, unitOriginator, spikesInEachUnit,
