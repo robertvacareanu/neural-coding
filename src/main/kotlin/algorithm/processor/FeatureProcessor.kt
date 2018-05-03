@@ -49,8 +49,9 @@ fun normalize(feature: List<DataPoint>): List<DataPoint> {
     (0 until numberOfUnits).forEach { unit ->
         val min = feature.minBy { it[unit] }!![unit]
         val max = feature.maxBy { it[unit] }!![unit]
+
         (0 until feature.size).forEach { trial ->
-            result[trial].second[unit] = (feature[trial][unit] - min)/(max - min)
+            result[trial].second[unit] = (feature[trial][unit] - min) / (max - min)
         }
     }
     return result
