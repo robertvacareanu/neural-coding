@@ -1,8 +1,8 @@
 import argparse
-import sys
-
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import sys
 from matplotlib import style
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import StandardScaler
@@ -10,20 +10,24 @@ from sklearn.preprocessing import StandardScaler
 style.use("ggplot")
 
 
-def lda(path, orientation1, orientation2, color1, color2, save_path, title):
+def perform_lda(path, orientation1, orientation2, color1, color2, save_path, title):
     data = pd.read_csv(path, header=None)
     x = data.iloc[:, :-1].values
     y = data.iloc[:, -1].values
     scaler = StandardScaler()
+
     x_norm = scaler.fit_transform(x)
+    new_x = x_norm[np.logical_or(y == orientation1, y == orientation2)]
+    new_y = y[np.logical_or(y == orientation1, y == orientation2)]
 
-    lda = LDA(n_components=2)
-    lda_transformed = pd.DataFrame(lda.fit_transform(x_norm, y))
+    lda = LDA()
+    lda_transformed = pd.DataFrame(lda.fit_transform(new_x, new_y))
 
-    plt.scatter(lda_transformed[y == orientation1][0], lda_transformed[y == orientation1][1], label=orientation1,
-                c=color1)
-    plt.scatter(lda_transformed[y == orientation2][0], lda_transformed[y == orientation2][1], label=orientation2,
-                c=color2)
+    plt.eventplot(lda_transformed[new_y == orientation1][0], orientation='horizontal', label=orientation1,
+                  colors=color1)
+    plt.eventplot(lda_transformed[new_y == orientation2][0], orientation='horizontal', label=orientation2,
+                  colors=color2)
+
     plt.title(title)
     plt.legend()
     if save_path is not None:
@@ -44,4 +48,5 @@ parser.add_argument("-t", "--title", required=True,
                     help="Path to save the plot. By default only displays the plot")
 
 result = parser.parse_args(sys.argv[1:])
-lda(result.path, result.orientation[0], result.orientation[1], result.color[0], result.color[1], result.save, result.title)
+perform_lda(result.path, result.orientation[0], result.orientation[1], result.color[0], result.color[1], result.save,
+            result.title)
