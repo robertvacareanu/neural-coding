@@ -1,6 +1,7 @@
 package reader
 
 import main.almostEqual
+import model.Trial
 import model.metadata.SpikeMetadata
 import org.junit.Test
 import reader.spikes.DataSpikeReader
@@ -63,6 +64,15 @@ class SpikeChannelSpikeReaderTest {
         assert(spikeChannel5[4][5] almostEqual -6.500218)
         assert(spikeChannel5[4][6] almostEqual -3.021892)
         assert(spikeChannel5[4].timestamp almostEqual 150036)
+
+    }
+
+    @Test
+    fun trialConstraintRead() {
+        val mr = MetadataReader(basePath)
+        val spikeReader = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()), listOf<Trial.() -> Boolean>({ contrast == 100 }))
+
+        assert(spikeReader.readTrials().size == 80)
 
     }
 
