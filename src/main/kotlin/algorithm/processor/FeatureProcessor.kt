@@ -2,6 +2,7 @@ package algorithm.processor
 
 import main.DataPoint
 import main.get
+import main.orientation
 
 /**
  * Created by robert on 4/17/18.
@@ -25,9 +26,9 @@ fun merge(feature1: List<DataPoint>, feature2: List<DataPoint>, merger: (Float, 
 fun aggregate(features: List<List<DataPoint>>): List<DataPoint> {
     val result = mutableListOf<DataPoint>()
 
-    val numberOfFeatures = features.first().size
+    val numberOfTrials = features.first().size
 
-    (0 until numberOfFeatures).forEach { trial ->
+    (0 until numberOfTrials).forEach { trial ->
         val mergedFeatureValues = mutableListOf<Float>()
         (0 until features.size).forEach { dataset ->
             mergedFeatureValues.addAll(features[dataset][trial].second.toList())
@@ -56,4 +57,22 @@ fun normalize(feature: List<DataPoint>): List<DataPoint> {
     }
     return result
 
+}
+
+/**
+ * Remove first trial of every orientation
+ */
+fun removeFirstOccurence(feature: List<DataPoint>): List<DataPoint> {
+    val indices = mutableListOf<Int>()
+    (0 until 8).mapTo(indices) {
+        val orientation = it * 45
+        feature.indexOfFirst { it.orientation == orientation }
+    }
+    val result = mutableListOf<DataPoint>()
+    (0 until feature.size).forEach {
+        if (!indices.contains(it)) {
+            result.add(feature[it])
+        }
+    }
+    return result
 }
