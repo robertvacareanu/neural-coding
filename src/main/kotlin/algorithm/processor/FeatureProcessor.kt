@@ -22,8 +22,9 @@ fun merge(feature1: List<DataPoint>, feature2: List<DataPoint>, merger: (Float, 
 
 /**
  * Assumes all elements have the same size as well as that they are in the same order
+ * Flats the feature list. Number of trials remains the same
  */
-fun aggregate(features: List<List<DataPoint>>): List<DataPoint> {
+fun aggregateHorizontally(features: List<List<DataPoint>>): List<DataPoint> {
     val result = mutableListOf<DataPoint>()
 
     val numberOfTrials = features.first().size
@@ -34,6 +35,20 @@ fun aggregate(features: List<List<DataPoint>>): List<DataPoint> {
             mergedFeatureValues.addAll(features[dataset][trial].second.toList())
         }
         result.add(DataPoint(features.first()[trial].first, mergedFeatureValues.toFloatArray()))
+    }
+
+    return result
+}
+
+/**
+ * Assumes all elements have the same size as well as that they are in the same order
+ *
+ */
+fun aggregateVertically(features: List<List<DataPoint>>): List<DataPoint> {
+    val result = mutableListOf<DataPoint>()
+
+    (0 until features.size).forEach {
+        result.addAll(features[it])
     }
 
     return result
