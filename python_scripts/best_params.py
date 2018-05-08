@@ -44,12 +44,17 @@ def find_best_params(path, classifier, orientation1, orientation2, attempts, rep
     res = [(x, sum(scores[x]) / float(len(scores[x])), str(len(scores[x]))) for x in scores]
 
     res.sort(key=lambda kk: (kk[1], kk[2]), reverse=True)
+
     if attempts:
         print(res)
     else:
         print(res[0])
-        if int(res[0][1]) < repetitions / 2:
-            print(res[1])
+        howMany = int(res[0][2])
+        current = 1
+        while howMany < repetitions / 2:
+            print(res[current])
+            howMany += int(res[current][2])
+            current += 1
 
 
 parser = argparse.ArgumentParser(
