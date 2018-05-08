@@ -9,7 +9,6 @@ import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import reader.MetadataReader
 import java.io.File
-import java.io.FileOutputStream
 import kotlin.math.abs
 
 /**
@@ -44,15 +43,18 @@ fun Spike.toGraph(name: String, width: Int = 500, height: Int = 500) {
 
     val ds = ChartFactory.createXYLineChart("Spike", "Sample number", "Amplitude (uv)", dataset, PlotOrientation.VERTICAL, true, true, false)
 
-    ChartUtilities.writeChartAsPNG(FileOutputStream(File(name)), ds, width, height)
+    ChartUtilities.saveChartAsPNG(File(name), ds, width, height)
 }
 
 typealias DataPoint = Pair<Int, FloatArray>
+typealias DataSet = List<DataPoint>
 
 /**
  * A utility function to avoid calls like: data[0].second[3]
  */
 operator fun Pair<Int, FloatArray>.get(index: Int) = second[index]
+
+fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
 
 /**
  * Providing an alias for first
@@ -60,6 +62,13 @@ operator fun Pair<Int, FloatArray>.get(index: Int) = second[index]
  */
 val Pair<Int, FloatArray>.orientation: Int
     get() = first
+
+/**
+ * Providing an alias for first
+ * It improves readability
+ */
+val Pair<Int, FloatArray>.values: FloatArray
+    get() = second
 
 /**
  * Commonly used in tests to compare doubles
