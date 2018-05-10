@@ -26,9 +26,9 @@ fun process(spikeReader: SpikeReader,
             dataExtractor: BetweenTimestamps,
             featureExtractor: FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>>,
             preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
-            postProcessingTransformres: List<(List<DataPoint>) -> List<DataPoint>> = listOf()
+            postProcessingTransformers: List<(List<DataPoint>) -> List<DataPoint>> = listOf()
 ): List<DataPoint> =
-        postProcessingTransformres.fold(featureExtractor.extract(preProcessingTransformers.fold(dataExtractor.extractData(spikeReader.readTrials())) { acc, function -> function(acc) }, valueExtractor::extractValue)) { acc, function -> function(acc) }
+        postProcessingTransformers.fold(featureExtractor.extract(preProcessingTransformers.fold(dataExtractor.extractData(spikeReader.readTrials())) { acc, function -> function(acc) }, valueExtractor::extractValue)) { acc, function -> function(acc) }
 
 /**
  * An utility function to simplify the whole process
@@ -39,7 +39,7 @@ fun process(spikeReader: SpikeReader,
  */
 fun process(path: String,
             preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
-            postProcessingTransformres: List<(List<DataPoint>) -> List<DataPoint>> = listOf()
+            postProcessingTransformers: List<(List<DataPoint>) -> List<DataPoint>> = listOf()
 ): List<DataPoint> {
     val mr = MetadataReader(path)
     val spktwe = mr.readSPKTWE()
@@ -48,5 +48,5 @@ fun process(path: String,
     val de = BetweenStim(sp)
     val fe = SingleValueFeatureExtractor()
 
-    return postProcessingTransformres.fold(fe.extract(preProcessingTransformers.fold(de.extractData(sp.readTrials())) { acc, function -> function(acc) }, ve::extractValue)) { acc, function -> function(acc) }
+    return postProcessingTransformers.fold(fe.extract(preProcessingTransformers.fold(de.extractData(sp.readTrials())) { acc, function -> function(acc) }, ve::extractValue)) { acc, function -> function(acc) }
 }

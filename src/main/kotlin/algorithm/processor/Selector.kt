@@ -11,7 +11,7 @@ import model.TrialData
  * An utility function to remove from the data those units that don't contain data in all trials
  * Unit selector - those that have data in all the trials
  */
-fun removeIfEmpty(data: DataSet) = with(data) {
+fun removeIfEmpty(dataSet: DataSet) = with(dataSet) {
     val emptyColumns = mutableSetOf<Int>()
     forEach { unitData ->
         emptyColumns.addAll(unitData.second.indices.filter { unitData[it] almostEqual 0.0 })

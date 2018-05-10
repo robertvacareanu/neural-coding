@@ -24,7 +24,7 @@ fun merge(features: List<DataSet>, merger: (List<Float>) -> Float = { it.fold(0f
         }
         DataPoint(features[0][trialIndex].first, floatArray.toFloatArray())
     }
-    
+
     return result
 }
 
