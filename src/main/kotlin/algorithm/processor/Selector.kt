@@ -1,5 +1,7 @@
 package algorithm.processor
 
+import main.DataPoint
+import main.DataSet
 import main.almostEqual
 import main.get
 import model.TrialData
@@ -9,13 +11,13 @@ import model.TrialData
  * An utility function to remove from the data those units that don't contain data in all trials
  * Unit selector - those that have data in all the trials
  */
-fun removeIfEmpty(data: List<Pair<Int, FloatArray>>) = with(data) {
+fun removeIfEmpty(data: DataSet) = with(data) {
     val emptyColumns = mutableSetOf<Int>()
     forEach { unitData ->
         emptyColumns.addAll(unitData.second.indices.filter { unitData[it] almostEqual 0.0 })
     }
 
-    val result = mutableListOf<Pair<Int, FloatArray>>()
+    val result = mutableListOf<DataPoint>()
 
     forEach {
         result.add(Pair(it.first, it.second.filterIndexed { index, _ -> !emptyColumns.contains(index) }.toFloatArray()))
