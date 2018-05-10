@@ -1,29 +1,38 @@
 package algorithm.processor
 
 import main.DataPoint
+import main.DataSet
 import main.get
 import main.orientation
 
 /**
  * Created by robert on 4/17/18.
  * Expected to be in the same order (corresponding 1 on 1)
+ * Assumes features is a non empty list and that each features contains data points
  */
-fun merge(feature1: List<DataPoint>, feature2: List<DataPoint>, merger: (Float, Float) -> Float = { f1, f2 -> f1 * f2 }): List<DataPoint> {
-    val result = mutableListOf<Pair<Int, FloatArray>>()
-    (0 until feature1.size).mapTo(result) { trial ->
+fun merge(features: List<DataSet>, merger: (List<Float>) -> Float = { it.fold(0f) { acc, fl -> acc + fl } }): DataSet {
+    val result = mutableListOf<DataPoint>()
+    (0 until features.first().size).mapTo(result) { trialIndex ->
         val floatArray = mutableListOf<Float>()
-        (0 until feature1[trial].second.size).mapTo(floatArray) {
-            merger(feature1[trial].second[it], feature2[trial].second[it])
+
+        (0 until features[0][trialIndex].second.size).mapTo(floatArray) { pointIndex ->
+            val points = mutableListOf<Float>()
+            (0 until features.size).mapTo(points) { dataSetIndex ->
+                features[dataSetIndex][trialIndex][pointIndex]
+            }
+            merger(points)
         }
-        Pair(feature1[trial].first, floatArray.toFloatArray())
+        DataPoint(features[0][trialIndex].first, floatArray.toFloatArray())
     }
+
     return result
 }
 
 /**
  * Assumes all elements have the same size as well as that they are in the same order
+ * Flats the feature list. Number of trials remains the same
  */
-fun aggregate(features: List<List<DataPoint>>): List<DataPoint> {
+fun aggregateHorizontally(features: List<DataSet>): DataSet {
     val result = mutableListOf<DataPoint>()
 
     val numberOfTrials = features.first().size
@@ -40,9 +49,23 @@ fun aggregate(features: List<List<DataPoint>>): List<DataPoint> {
 }
 
 /**
+ * Assumes all elements have the same size as well as that they are in the same order
+ *
+ */
+fun aggregateVertically(features: List<DataSet>): DataSet {
+    val result = mutableListOf<DataPoint>()
+
+    (0 until features.size).forEach {
+        result.addAll(features[it])
+    }
+
+    return result
+}
+
+/**
  * Normalize the data set using (x - min)/(max-min)
  */
-fun normalize(feature: List<DataPoint>): List<DataPoint> {
+fun normalize(feature: DataSet): DataSet {
 
     val result = mutableListOf<DataPoint>()
     result.addAll(feature)

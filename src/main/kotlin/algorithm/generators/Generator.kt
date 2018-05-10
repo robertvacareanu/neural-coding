@@ -1,17 +1,27 @@
 package algorithm.generators
 
+import algorithm.extractor.data.BetweenStim
 import algorithm.extractor.data.BetweenTimestamps
 import algorithm.extractor.feature.FeatureExtractor
-import algorithm.extractor.value.ValueExtractor
+import algorithm.extractor.feature.SingleValueFeatureExtractor
+import algorithm.extractor.value.*
+import algorithm.processor.aggregateHorizontally
+import algorithm.processor.aggregateVertically
 import algorithm.processor.process
+import algorithm.processor.removeIfEmpty
 import exporter.exportCSV
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import main.DataPoint
+import main.DataSet
 import model.Spike
+import model.Trial
 import model.TrialData
+import model.metadata.SpikeMetadata
+import reader.MetadataReader
+import reader.spikes.DataSpikeReader
 import reader.spikes.SpikeReader
 
 /**
@@ -23,7 +33,7 @@ fun generateFiles(spikeReader: SpikeReader,
                   featureExtractors: List<FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>>>,
                   dataExtractors: List<BetweenTimestamps>,
                   preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
-                  postProcessingTransformres: List<(List<DataPoint>) -> List<DataPoint>> = listOf(),
+                  postProcessingTransformres: List<(DataSet) -> DataSet> = listOf(),
                   nameGenerator: (ValueExtractor<Spike, Float>, FeatureExtractor<TrialData, List<DataPoint>>, BetweenTimestamps) -> String) {
 
     runBlocking {
@@ -33,7 +43,7 @@ fun generateFiles(spikeReader: SpikeReader,
                 for (ve in valueExtractors) {
                     for (de in dataExtractors) {
                         jobs.add(launch {
-                            exportCSV(process(spikeReader = spikeReader, valueExtractor = ve, featureExtractor = fe, dataExtractor = de, preProcessingTransformers = preProcessingTransformers, postProcessingTransformres = postProcessingTransformres), nameGenerator(ve, fe, de))
+                            exportCSV(process(spikeReader = spikeReader, valueExtractor = ve, featureExtractor = fe, dataExtractor = de, preProcessingTransformers = preProcessingTransformers, postProcessingTransformers = postProcessingTransformres), nameGenerator(ve, fe, de))
                         })
                     }
                 }
@@ -41,5 +51,30 @@ fun generateFiles(spikeReader: SpikeReader,
             jobs.forEach { it.join() }
         }.await()
     }
-
 }
+
+fun generateGeometricFeatures(paths: List<String>,
+                              preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
+                              postProcessingTransformers: List<(DataSet) -> DataSet> = listOf(),
+                              name: String) {
+
+    val results = mutableListOf<DataSet>()
+    paths.mapTo(results) {
+        val mr = MetadataReader(it)
+        val spktweMetadata = mr.readSPKTWE()
+        val sr = DataSpikeReader(mr.readETI(), SpikeMetadata(spktweMetadata), listOf<Trial.() -> Boolean>({ contrast == 100 }))
+
+        aggregateHorizontally(
+                listOf(
+                        process(sr, MeanAmplitude(spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
+                        process(sr, MeanAmplitudeOfFirstSpike(spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
+                        process(sr, MeanArea(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
+                        process(sr, MeanPerimeter(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
+                        process(sr, MeanWidth(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers)
+                )
+        )
+    }
+    exportCSV((postProcessingTransformers.fold(removeIfEmpty(aggregateVertically(results)).toList()) { acc, function -> function(acc) }), name)
+}
+
+
