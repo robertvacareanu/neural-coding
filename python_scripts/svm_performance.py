@@ -28,9 +28,9 @@ def svm_comparison(path, orientation1, orientation2, histogram, lda):
 
     scores1 = []
     scores2 = []
-    for _ in range(0, 1000):
-        X_train, X_test, y_train, y_test = train_test_split(new_x, new_y, test_size=0.1)
-        classifier = SVC(kernel='rbf', gamma=0.03125, C=2)
+    for _ in range(0, 10000):
+        X_train, X_test, y_train, y_test = train_test_split(new_x, new_y, test_size=0.25)
+        classifier = SVC(kernel='rbf', gamma=0.015625, C=32)
         classifier.fit(X_train, y_train)
         scores1.append(metrics.accuracy_score(y_test, classifier.predict(X_test)))
         scores2.append(metrics.accuracy_score(new_y, classifier.predict(new_x)))
@@ -41,7 +41,7 @@ def svm_comparison(path, orientation1, orientation2, histogram, lda):
 
     if histogram:
         plt.title(path)
-        plt.hist(scores1, range=[0.0, 1.0], align='mid', bins=20)
+        plt.hist(scores1, range=[0.0, 1.0], align='mid', bins='auto')
         plt.show()
 
 
