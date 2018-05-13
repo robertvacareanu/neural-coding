@@ -6,7 +6,7 @@ import algorithm.extractor.feature.FeatureExtractor
 import algorithm.extractor.feature.SingleValueFeatureExtractor
 import algorithm.extractor.value.MeanAmplitude
 import algorithm.extractor.value.ValueExtractor
-import main.DataPoint
+import main.DataSet
 import model.Spike
 import model.TrialData
 import model.metadata.SpikeMetadata
@@ -26,8 +26,8 @@ fun process(spikeReader: SpikeReader,
             dataExtractor: BetweenTimestamps,
             featureExtractor: FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>>,
             preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
-            postProcessingTransformers: List<(List<DataPoint>) -> List<DataPoint>> = listOf()
-): List<DataPoint> =
+            postProcessingTransformers: List<(DataSet) -> DataSet> = listOf()
+): DataSet =
         postProcessingTransformers.fold(featureExtractor.extract(preProcessingTransformers.fold(dataExtractor.extractData(spikeReader.readTrials())) { acc, function -> function(acc) }, valueExtractor::extractValue)) { acc, function -> function(acc) }
 
 /**
@@ -39,8 +39,8 @@ fun process(spikeReader: SpikeReader,
  */
 fun process(path: String,
             preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
-            postProcessingTransformers: List<(List<DataPoint>) -> List<DataPoint>> = listOf()
-): List<DataPoint> {
+            postProcessingTransformers: List<(DataSet) -> DataSet> = listOf()
+): DataSet {
     val mr = MetadataReader(path)
     val spktwe = mr.readSPKTWE()
     val sp = DataSpikeReader(mr.readETI(), SpikeMetadata(spktwe))

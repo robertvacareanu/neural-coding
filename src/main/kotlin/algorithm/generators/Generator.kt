@@ -33,7 +33,7 @@ fun generateFiles(spikeReader: SpikeReader,
                   featureExtractors: List<FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>>>,
                   dataExtractors: List<BetweenTimestamps>,
                   preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
-                  postProcessingTransformres: List<(DataSet) -> DataSet> = listOf(),
+                  postProcessingTransformers: List<(DataSet) -> DataSet> = listOf(),
                   nameGenerator: (ValueExtractor<Spike, Float>, FeatureExtractor<TrialData, List<DataPoint>>, BetweenTimestamps) -> String) {
 
     runBlocking {
@@ -43,7 +43,7 @@ fun generateFiles(spikeReader: SpikeReader,
                 for (ve in valueExtractors) {
                     for (de in dataExtractors) {
                         jobs.add(launch {
-                            exportCSV(process(spikeReader = spikeReader, valueExtractor = ve, featureExtractor = fe, dataExtractor = de, preProcessingTransformers = preProcessingTransformers, postProcessingTransformers = postProcessingTransformres), nameGenerator(ve, fe, de))
+                            exportCSV(process(spikeReader = spikeReader, valueExtractor = ve, featureExtractor = fe, dataExtractor = de, preProcessingTransformers = preProcessingTransformers, postProcessingTransformers = postProcessingTransformers), nameGenerator(ve, fe, de))
                         })
                     }
                 }
@@ -56,13 +56,14 @@ fun generateFiles(spikeReader: SpikeReader,
 fun generateGeometricFeatures(paths: List<String>,
                               preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
                               postProcessingTransformers: List<(DataSet) -> DataSet> = listOf(),
+                              spikeReaderFilters: List<Trial.() -> Boolean> = listOf(),
                               name: String) {
 
     val results = mutableListOf<DataSet>()
     paths.mapTo(results) {
         val mr = MetadataReader(it)
         val spktweMetadata = mr.readSPKTWE()
-        val sr = DataSpikeReader(mr.readETI(), SpikeMetadata(spktweMetadata), listOf<Trial.() -> Boolean>({ contrast == 100 }))
+        val sr = DataSpikeReader(mr.readETI(), SpikeMetadata(spktweMetadata), spikeReaderFilters)
 
         aggregateHorizontally(
                 listOf(
