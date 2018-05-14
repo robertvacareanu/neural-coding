@@ -1,13 +1,14 @@
 package extractor.feature
 
-import algorithm.extractor.feature.*
+import algorithm.extractor.feature.SingleValueFeatureExtractor
+import algorithm.extractor.feature.WindowValueFeatureExtractor
 import algorithm.extractor.value.*
-import model.Spike
-import model.TrialData
-import org.junit.Test
 import main.almostEqual
 import main.get
 import main.orientation
+import model.Spike
+import model.TrialData
+import org.junit.Test
 import java.awt.geom.Point2D
 
 /**
@@ -70,7 +71,7 @@ class FeatureExtractorTest {
         assert(feature[0].orientation == 1)
         assert(feature[1].orientation == 1)
 
-        assert(feature[0][0] almostEqual  43.0333333333)
+        assert(feature[0][0] almostEqual 43.0333333333)
         assert(feature[0][1] almostEqual 46)
         assert(feature[0][2] almostEqual 66.5533333333)
         assert(feature[1][0] almostEqual 41)
@@ -100,18 +101,18 @@ class FeatureExtractorTest {
         val fe = MeanAmplitude(2)
 
         val t1ChannelData = listOf(
-                Spike(1.0, floatArrayOf(1f,2f,10f,4f,5f)),
-                Spike(2.0, floatArrayOf(1f,2f,12f,4f,5f)),
-                Spike(4.0, floatArrayOf(1f,2f,14f,4f,5f)),
-                Spike(6.0, floatArrayOf(1f,2f,16f,4f,5f)),
-                Spike(10.0, floatArrayOf(1f,2f,18f,4f,5f)),
+                Spike(1.0, floatArrayOf(1f, 2f, 10f, 4f, 5f)),
+                Spike(2.0, floatArrayOf(1f, 2f, 12f, 4f, 5f)),
+                Spike(4.0, floatArrayOf(1f, 2f, 14f, 4f, 5f)),
+                Spike(6.0, floatArrayOf(1f, 2f, 16f, 4f, 5f)),
+                Spike(10.0, floatArrayOf(1f, 2f, 18f, 4f, 5f)),
 
-                Spike(13.0, floatArrayOf(1f,2f,20f,4f,5f)),
-                Spike(15.0, floatArrayOf(1f,2f,24f,4f,5f)),
-                Spike(20.0, floatArrayOf(1f,2f,26f,4f,5f)),
+                Spike(13.0, floatArrayOf(1f, 2f, 20f, 4f, 5f)),
+                Spike(15.0, floatArrayOf(1f, 2f, 24f, 4f, 5f)),
+                Spike(20.0, floatArrayOf(1f, 2f, 26f, 4f, 5f)),
 
-                Spike(28.0, floatArrayOf(1f,2f,30f,4f,5f)),
-                Spike(29.0, floatArrayOf(1f,2f,34f,4f,5f))
+                Spike(28.0, floatArrayOf(1f, 2f, 30f, 4f, 5f)),
+                Spike(29.0, floatArrayOf(1f, 2f, 34f, 4f, 5f))
         )
 
         val res = wve.extract(listOf(TrialData(1, listOf(t1ChannelData.toTypedArray()), Pair(1.0, 29.0))), fe::extractValue)
@@ -199,12 +200,23 @@ class FeatureExtractorTest {
 
         var spike1Result = 0.0
         (0 until s1.size - 1).forEach {
-            spike1Result += s1[it].first * s1[it+1].second - s1[it].second * s1[it+1].first
+            spike1Result += s1[it].first * s1[it + 1].second - s1[it].second * s1[it + 1].first
         }
         spike1Result += s1.last().first * s1.first().second - s1.last().second * s1.first().first
 
-        assert((spike1Result)/2 almostEqual feature[0].second[0])
+        assert((spike1Result) / 2 almostEqual feature[0].second[0])
 
+    }
+
+    @Test
+    fun meanWidthTest() {
+        val t1Channel1Data = arrayOf(
+                Spike(1.0, floatArrayOf(0.0f, -15.0f, -52.0f, -22.0f, 0.0f))
+        )
+
+        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 5.0))), MeanWidth(1.0f, 2)::extractValue)
+
+        assert(feature[0][0] almostEqual 4.0)
     }
 
     @Test

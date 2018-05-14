@@ -25,7 +25,7 @@ class MeanWidth(private val waveformInternalSamplingFrequency: Float, private va
             val beforeSpike = points.subList(0, spikeOffset)
             val afterSpike = points.subList(spikeOffset + 1, points.size)
 
-            val firstIndex = beforeSpike.indexOfLast { it.second > 0 }
+            val firstIndex = beforeSpike.indexOfLast { it.second >= 0 }
             val p1 = if (firstIndex != -1) {
                 val p11 = beforeSpike[firstIndex]
                 val p12 = if (firstIndex == spikeOffset - 1) points[spikeOffset] else beforeSpike[firstIndex + 1]
