@@ -1,9 +1,7 @@
 package algorithm.processor
 
-import main.DataPoint
-import main.DataSet
-import main.almostEqual
-import main.get
+import algorithm.multiFilter
+import main.*
 import model.TrialData
 
 /**
@@ -46,3 +44,19 @@ fun removeIfNotEnoughSpikes(trialData: List<TrialData>, threshold: Int = 500) = 
     result
 }
 
+/**
+ * Similar with removeIfEmpty, just that it removes trials that do not contains enough units with valid value
+ */
+fun removeTrials(dataSet: DataSet, minOfUnits: Int = 5): DataSet {
+    val result = mutableListOf<DataPoint>()
+    val numberOfUnits = dataSet.numberOfUnits
+    val threshold = if (minOfUnits > numberOfUnits) numberOfUnits else minOfUnits
+    dataSet.forEach {
+        if (it.second.count { it == 0f } <= numberOfUnits - threshold) {
+            result.add(it)
+        }
+    }
+    return removeIfEmpty(result)
+}
+
+fun filterDataset(dataSet: DataSet, filters: List<DataPoint.() -> Boolean>) = dataSet.multiFilter(filters)
