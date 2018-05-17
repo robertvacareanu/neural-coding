@@ -9,7 +9,7 @@ import reader.spikes.SpikeReader
  * Created by robert on 2/24/18.
  * An abstraction over the DataExtractor, where the common operation: iteration over the whole list of trials as well
  * as over the channels is in one common method
- * Make us of the fact that there are 4 events:
+ * Make use of the fact that there are 4 events:
  * Trial start (t1), Stim ON (t2), Stim OFF (t3), Trial end (t4)
  *
  */

@@ -20,4 +20,4 @@ data class SpktweMetadata(val basePath: String,
                           val spikeWaveformPath: String,
                           val eventTimestampsPath: String,
                           val eventCodesPath: String
-                    )
+)

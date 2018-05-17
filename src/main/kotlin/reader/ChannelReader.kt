@@ -1,8 +1,6 @@
 package reader
 
 import model.Segment
-import model.Spike
-import model.Trial
 
 /**
  * Created by robert on 1/13/18.

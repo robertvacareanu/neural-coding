@@ -1,13 +1,7 @@
 package reader
 
 import model.Segment
-import model.Spike
-import model.Trial
-import model.metadata.EtiMetadata
-import model.metadata.SpktweMetadata
-import model.metadata.SsdMetadata
 import model.metadata.EpdMetadata
-import java.io.File
 
 /**
  * Created by robert on 1/13/18.

@@ -17,9 +17,9 @@ data class SpikeMetadata(
         val spikeTimestampsPath: String,
         val eventTimestampsPath: String,
         val spikeWaveformPath: String
-        ) {
+) {
 
-    constructor(unsorted: SpktweMetadata): this(
+    constructor(unsorted: SpktweMetadata) : this(
             basePath = unsorted.basePath,
             numberOfUnits = unsorted.storedChannels,
             spikesPerUnit = unsorted.spikesInEachChannel,
@@ -30,9 +30,9 @@ data class SpikeMetadata(
             spikeTimestampsPath = unsorted.spikeTimestampsPath,
             eventTimestampsPath = unsorted.eventTimestampsPath,
             spikeWaveformPath = unsorted.spikeWaveformPath
-            )
+    )
 
-    constructor(sorted: SsdMetadata): this(
+    constructor(sorted: SsdMetadata) : this(
             basePath = sorted.basePath,
             numberOfUnits = sorted.numberOfUnits,
             spikesPerUnit = sorted.spikesPerUnit,
@@ -43,6 +43,6 @@ data class SpikeMetadata(
             spikeTimestampsPath = sorted.spikeTimestampsPath,
             eventTimestampsPath = sorted.eventTimestampsPath,
             spikeWaveformPath = sorted.spikeWaveformPath
-            )
+    )
 
 }

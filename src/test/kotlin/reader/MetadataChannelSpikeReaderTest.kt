@@ -6,6 +6,7 @@ import org.junit.Test
 
 /**
  * Created by robert on 3/23/18.
+ * Tests for metadata reader. Reading the files with formats: .epd, .ssd and .spktwe
  */
 class MetadataChannelSpikeReaderTest {
 

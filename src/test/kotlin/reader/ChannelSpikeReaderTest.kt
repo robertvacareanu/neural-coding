@@ -11,7 +11,6 @@ class ChannelSpikeReaderTest {
 
     private val basePath = "../M017"
 
-
     @Test
     fun readerTest() {
         val mr = MetadataReader(basePath)

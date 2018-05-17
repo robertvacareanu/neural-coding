@@ -11,9 +11,9 @@ import java.io.File
  * Expects path to folder containing the files and every path
  * contained in a metadata file to be valid relative to the
  * metadata path.
- * @link SpktweMetadata
+ * [model.metadata.SpktweMetadata]
  * and
- * @link SsdMetadata
+ * [model.metadata.SsdMetadata]
  * are expected to have their files together
  *
  */
@@ -157,7 +157,7 @@ class MetadataReader {
 
         val eventCodesPath = lines[(start + 13 * offset + (3 * numberOfUnits - 3))]
 
-        if(!spikeTimestampPath.endsWith("ssdst") or !unitStatisticsPath.endsWith("ssdus") or !eventTimestampPath.endsWith("ssdet") or !eventCodesPath.endsWith("ssdec")) {
+        if (!spikeTimestampPath.endsWith("ssdst") or !unitStatisticsPath.endsWith("ssdus") or !eventTimestampPath.endsWith("ssdet") or !eventCodesPath.endsWith("ssdec")) {
             println("Unexpected SSD format")
         }
 

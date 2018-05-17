@@ -5,7 +5,7 @@ import model.Spike
 import model.TrialData
 
 /**
- * @param windowLength expected to be in floats. For example, for a sampling rate of 32000 floats / sec, 0.2 seconds will be 32000/5 = 6400
+ * @param windowLength expected to be a number dependent on the sampling rate. For example, for a sampling rate of 32000 floats / sec, 0.2 seconds will be 32000/5 = 6400
  * @param overlap in percentage, how much should the windows overlap. For example, a value of 0 would mean that there should be no overlapping,
  * however, a value of 0.5 would mean that if, for example first window goes from 0 to 100, the second one goes from 50 to 150, assuming that
  * the window length is 100

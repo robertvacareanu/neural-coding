@@ -6,7 +6,7 @@ import model.TrialData
 
 /**
  * Created by robert on 3/9/18.
- * An extractor which map a channel array of spikes to a single value
+ * An extractor which map a channel array of spikes to a single value using [algorithm.extractor.value.ValueExtractor]
  */
 class SingleValueFeatureExtractor : FeatureExtractor<TrialData, List<DataPoint>> {
 

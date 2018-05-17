@@ -5,6 +5,11 @@ import main.*
 import model.TrialData
 
 /**
+ * Utility functions to remove data: features or data points
+ */
+
+
+/**
  * Created by robert on 3/15/18.
  * An utility function to remove from the data those units that don't contain data in all trials
  * Unit selector - those that have data in all the trials
@@ -59,4 +64,7 @@ fun removeTrials(dataSet: DataSet, minOfUnits: Int = 5): DataSet {
     return removeIfEmpty(result)
 }
 
+/**
+ * Apply filters given as parameter to the dataset and return a new one
+ */
 fun filterDataset(dataSet: DataSet, filters: List<DataPoint.() -> Boolean>) = dataSet.multiFilter(filters)

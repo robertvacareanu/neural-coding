@@ -8,10 +8,10 @@ import org.junit.Test
 /**
  * Created by robert on 4/12/18.
  */
-class UnitSelectorTest {
+class SelectorTest {
 
     @Test
-    fun unitSelectorTest() {
+    fun removeIfNotEnoughSpikes() {
         val trials = listOf(
                 TrialData(
                         orientation = 1,

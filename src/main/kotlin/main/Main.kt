@@ -49,6 +49,9 @@ fun Spike.toGraph(name: String, width: Int = 500, height: Int = 500) {
 typealias DataPoint = Pair<Int, FloatArray>
 typealias DataSet = List<DataPoint>
 
+val DataSet.numberOfUnits: Int
+    get() = firstOrNull()?.second?.size ?: 0
+
 /**
  * A utility function to avoid calls like: data[0].second[3]
  */

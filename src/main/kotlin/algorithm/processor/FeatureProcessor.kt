@@ -85,7 +85,7 @@ fun normalize(feature: DataSet): DataSet {
 /**
  * Remove first trial of every orientation
  */
-fun removeFirstOccurence(feature: List<DataPoint>): List<DataPoint> {
+fun removeFirstOccurence(feature: DataSet): DataSet {
     val indices = mutableListOf<Int>()
     (0 until 8).mapTo(indices) {
         val orientation = it * 45

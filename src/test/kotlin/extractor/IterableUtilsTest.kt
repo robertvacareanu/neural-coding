@@ -3,7 +3,6 @@ package extractor
 import algorithm.multiFilter
 import algorithm.multiMap
 import algorithm.multiMapRight
-import model.Trial
 import org.junit.Test
 
 /**
@@ -59,8 +58,5 @@ class IterableUtilsTest {
         assert(base1[8] == 41)
         assert(base1[9] == 43)
         assert(base1[10] == 47)
-
-        val fiters2 = listOf<Trial.() -> Boolean>({contrast > 100})
-
     }
 }
