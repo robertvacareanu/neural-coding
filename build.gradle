@@ -33,10 +33,6 @@ dependencies {
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21"
 
     compile group: 'jfree', name: 'jfreechart', version: '1.0.13'
-    // https://mvnrepository.com/artifact/com.edwardraff/JSAT
-    compile group: 'com.edwardraff', name: 'JSAT', version: '0.0.9'
-    // https://mvnrepository.com/artifact/org.nd4j/nd4j-api
-    compile group: 'org.nd4j', name: 'nd4j-api', version: '0.9.1'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
     compile group: 'nz.ac.waikato.cms.weka', name: 'LibSVM', version: '1.0.4'
 

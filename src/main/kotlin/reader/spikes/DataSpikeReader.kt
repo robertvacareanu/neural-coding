@@ -17,13 +17,13 @@ import java.io.File
 class DataSpikeReader(private val etiMetadata: EtiMetadata, private val spikeMetadata: SpikeMetadata, private val filters: List<Trial.() -> Boolean> = listOf()) : SpikeReader {
 
     private fun spikeCountUntil(channel: Int): Int =
-        if (channel > 0 && channel <= spikeMetadata.spikesPerUnit.size) {
-            spikeMetadata.spikesPerUnit.take(channel - 1).sum()
-        } else if (channel > spikeMetadata.spikesPerUnit.size) {
-            spikeMetadata.spikesPerUnit.sum()
-        } else {
-            0
-        }
+            if (channel > 0 && channel <= spikeMetadata.spikesPerUnit.size) {
+                spikeMetadata.spikesPerUnit.take(channel - 1).sum()
+            } else if (channel > spikeMetadata.spikesPerUnit.size) {
+                spikeMetadata.spikesPerUnit.sum()
+            } else {
+                0
+            }
 
     override fun readSpikes(fromUnit: Int, between: IntRange): List<Spike> {
         val result = mutableListOf<Spike>()

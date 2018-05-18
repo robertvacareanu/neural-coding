@@ -25,7 +25,7 @@ class WindowValueFeatureExtractor(private val windowLength: Int, private val ove
                 while (start < last) {
                     val from = timestamps.indexOfFirst { it >= start }
                     var to = timestamps.indexOfFirst { it > end }
-                    if(end > last && to == -1) {
+                    if (end > last && to == -1) {
                         to = timestamps.size
                     }
                     if ((from != -1) and (to != -1)) {
