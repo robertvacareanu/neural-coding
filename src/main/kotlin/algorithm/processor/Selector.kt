@@ -1,6 +1,7 @@
 package algorithm.processor
 
 import algorithm.multiFilter
+import exporter.exportCSV
 import main.*
 import model.TrialData
 
@@ -52,16 +53,31 @@ fun removeIfNotEnoughSpikes(trialData: List<TrialData>, threshold: Int = 500) = 
 /**
  * Similar with removeIfEmpty, just that it removes trials that do not contains enough units with valid value
  */
-fun removeTrials(dataSet: DataSet, minOfUnits: Int = 5): DataSet {
+fun removeTrials(dataSet: DataSet, minOfUnits: Int = 5, emptyValue: Float = 0f): DataSet {
     val result = mutableListOf<DataPoint>()
     val numberOfUnits = dataSet.numberOfUnits
     val threshold = if (minOfUnits > numberOfUnits) numberOfUnits else minOfUnits
     dataSet.forEach {
-        if (it.second.count { it == 0f } <= numberOfUnits - threshold) {
+        if (it.second.count { it == emptyValue } <= numberOfUnits - threshold) {
             result.add(it)
         }
     }
-    return removeIfEmpty(result)
+    return result
+}
+
+fun removeTrialsWithLeastFeatures(dataSet: DataSet, skip: Int = 5, emptyValue: Float = 0f): DataSet {
+    val result = mutableListOf<DataPoint>()
+    val indexes = mutableListOf<Pair<Int, Int>>()
+    dataSet.forEachIndexed { index, datapoint ->
+        indexes.add(Pair(index, datapoint.second.count { it != emptyValue }))
+    }
+    indexes.sortBy { it.second }
+    (0 until indexes.count()).forEach {
+        if (it >= skip) {
+            result.add(dataSet[indexes[it].first])
+        }
+    }
+    return result
 }
 
 /**

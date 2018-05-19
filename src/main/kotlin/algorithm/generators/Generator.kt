@@ -75,7 +75,7 @@ fun generateGeometricFeatures(paths: List<String>,
                 )
         )
     }
-    exportCSV((postProcessingTransformers.fold(removeIfEmpty(aggregateVertically(results)).toList()) { acc, function -> function(acc) }), name)
+    exportCSV((postProcessingTransformers.fold(aggregateVertically(results).toList()) { acc, function -> function(acc) }), name)
 }
 
 
