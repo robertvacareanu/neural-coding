@@ -1,12 +1,12 @@
 package algorithm.processor
 
 import algorithm.multiFilter
-import exporter.exportCSV
 import main.*
 import model.TrialData
 
 /**
  * Utility functions to remove data: features or data points
+ * The ones that takes as a parameter the emptyValue are used, generally, for geometric features
  */
 
 
@@ -53,10 +53,10 @@ fun removeIfNotEnoughSpikes(trialData: List<TrialData>, threshold: Int = 500) = 
 /**
  * Similar with removeIfEmpty, just that it removes trials that do not contains enough units with valid value
  */
-fun removeTrials(dataSet: DataSet, minOfUnits: Int = 5, emptyValue: Float = 0f): DataSet {
+fun removeTrials(dataSet: DataSet, unitsWithDataThreshold: Int = 5, emptyValue: Float = 0f): DataSet {
     val result = mutableListOf<DataPoint>()
     val numberOfUnits = dataSet.numberOfUnits
-    val threshold = if (minOfUnits > numberOfUnits) numberOfUnits else minOfUnits
+    val threshold = if (unitsWithDataThreshold > numberOfUnits) numberOfUnits else unitsWithDataThreshold
     dataSet.forEach {
         if (it.second.count { it == emptyValue } <= numberOfUnits - threshold) {
             result.add(it)
@@ -65,16 +65,63 @@ fun removeTrials(dataSet: DataSet, minOfUnits: Int = 5, emptyValue: Float = 0f):
     return result
 }
 
+/**
+ * Returns a new list that does not contain the indices inside trialsIndex
+ * @param dataSet initial dataset, the one to be filtered
+ * @param trialsIndex a list containing the indices to be removed from dataSet
+ */
+fun removeTrials(dataSet: DataSet, trialsIndex: List<Int>) = dataSet.filterIndexed { index, _ -> !trialsIndex.contains(index) }
+
+fun removeUnits(dataSet: DataSet, trialsWithDataThreshold: Int, emptyValue: Float = 0f): DataSet {
+    val removeColumns = IntArray(dataSet.numberOfUnits, { dataSet.size })
+
+    dataSet.forEach {
+        it.second.forEachIndexed { index, fl ->
+            if (fl == emptyValue) removeColumns[index]--
+        }
+    }
+
+    println(removeColumns.sorted().joinToString())
+
+    val result = mutableListOf<DataPoint>()
+
+    dataSet.forEach {
+        result.add(Pair(it.orientation, it.second.filterIndexed { index, _ -> removeColumns[index] >= trialsWithDataThreshold }.toFloatArray()))
+    }
+
+    return result
+}
+
+fun balance(dataSet: DataSet): DataSet {
+    val trials = IntArray(8, { orientation -> dataSet.count { it.orientation == orientation * 45 } })
+    println(trials.joinToString())
+    val min = trials.filter { it != 0 }.min()!!
+    val balancedNumbers = trials.map { if (it != 0) min else 0 }.toIntArray()
+    println(balancedNumbers.joinToString())
+    val result = mutableListOf<DataPoint>()
+    for (dp in dataSet) {
+        if (balancedNumbers[dp.orientation / 45] > 0) {
+            result.add(dp)
+            balancedNumbers[dp.orientation / 45]--
+            println(balancedNumbers.joinToString())
+        }
+    }
+    return result
+}
+
+/**
+ * Destroys relative order of trials
+ */
 fun removeTrialsWithLeastFeatures(dataSet: DataSet, skip: Int = 5, emptyValue: Float = 0f): DataSet {
     val result = mutableListOf<DataPoint>()
-    val indexes = mutableListOf<Pair<Int, Int>>()
+    val indices = mutableListOf<Pair<Int, Int>>()
     dataSet.forEachIndexed { index, datapoint ->
-        indexes.add(Pair(index, datapoint.second.count { it != emptyValue }))
+        indices.add(Pair(index, datapoint.second.count { it != emptyValue }))
     }
-    indexes.sortBy { it.second }
-    (0 until indexes.count()).forEach {
+    indices.sortBy { it.second }
+    (0 until indices.count()).forEach {
         if (it >= skip) {
-            result.add(dataSet[indexes[it].first])
+            result.add(dataSet[indices[it].first])
         }
     }
     return result
