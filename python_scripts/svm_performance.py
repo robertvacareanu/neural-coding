@@ -7,6 +7,7 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
 
 style.use("ggplot")
 from sklearn.decomposition import PCA
@@ -16,14 +17,15 @@ def svm_comparison(path, orientations, histogram, repetitions, size, pca_percent
     data = pd.read_csv(path, header=None)
     X = data.iloc[:, :-1].values
     Y = data.iloc[:, -1].values
-    scaler = StandardScaler()
-    X_norm = scaler.fit_transform(X)
+
+    print(Y)
+    print(Y)
 
     if orientations is not None:
-        new_x = X_norm[np.logical_or(Y == orientations[0], Y == orientations[1])]
+        new_x = X[np.logical_or(Y == orientations[0], Y == orientations[1])]
         new_y = Y[np.logical_or(Y == orientations[0], Y == orientations[1])]
     else:
-        new_x = X_norm
+        new_x = X
         new_y = Y
 
     if pca_percent is not None:
@@ -37,16 +39,17 @@ def svm_comparison(path, orientations, histogram, repetitions, size, pca_percent
     scores1 = []
     for _ in range(0, repetitions):
         X_train, X_test, y_train, y_test = train_test_split(new_x, new_y, test_size=size)
-
-        classifier = SVC()
-        classifier.fit(X_train, y_train)
-        scores1.append(metrics.accuracy_score(y_test, classifier.predict(X_test)))
+        pipeline = Pipeline([('scaler', StandardScaler()), ('pca', PCA(n_components=10)), ('SVM', SVC(kernel='rbf', C=2, gamma=0.015625))])
+        pipeline.fit(X_train, y_train)
+        scores1.append(metrics.accuracy_score(y_test, pipeline.predict(X_test)))
     print(np.mean(scores1))
     print(np.std(scores1))
 
     if histogram:
-        plt.title(path)
-        plt.hist(scores1, range=[0.0, 1.0], align='mid', bins='auto')
+        plt.title('SVM performance for geometric features')
+        plt.xlabel('Accuracy')
+        plt.ylabel('Total')
+        plt.hist(scores1, range=[0.0, 1.0], align='mid', bins=20)
         plt.show()
 
 
@@ -57,7 +60,7 @@ parser.add_argument("-o", "--orientation", nargs="*", type=int, required=False, 
 parser.add_argument("--histogram", action='store_true',
                     help="Plot histogram with the results")
 parser.add_argument("-r", "--repetitions", type=int, required=False, default=1000)
-parser.add_argument("-s", "--size", type=float, required=False, default=0.2)
+parser.add_argument("-s", "--size", type=float, required=False, default=0.1)
 parser.add_argument("--pca", type=float, required=False, default=None, help="Percentage of variance to take")
 result = parser.parse_args()
 svm_comparison(result.path, result.orientation, result.histogram,
