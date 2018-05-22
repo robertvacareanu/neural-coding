@@ -15,13 +15,13 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 
 classifier_map = {
-    'SVC': [Pipeline([('scaler', StandardScaler()), ('selector', PCA(n_components=10)), ('clf', SVC())]), [{'clf__kernel': ['rbf'],
+    'SVC': [Pipeline([('scaler', StandardScaler()), ('clf', SVC())]), [{'clf__kernel': ['rbf'],
                                                                         'clf__gamma': [2 ** x for x in range(-10, 10)],
                                                                         'clf__C': [2 ** x for x in range(-10, 10)]},
                                                                        {'clf__kernel': ['linear'], 'clf__C': [2 ** x for x in range(-10, 10)]},
                                                                        {'clf__kernel': ['poly'], 'clf__C': [2 ** x for x in range(-10, 10)],
                                                                         'clf__degree': np.linspace(1, 13, 7)}]],
-    'LDA': [Pipeline([('scaler', StandardScaler()), ('clf', LDA())]), [{'n_components': range(1, 7)}]],
+    'LDA': [Pipeline([('scaler', StandardScaler()), ('clf', LDA())]), [{'clf__n_components': range(1, 7)}]],
     'Voting1': [
         Pipeline([('scaler', StandardScaler()), ('clf', VotingClassifier(
             estimators=[('svm', SVC()),
@@ -39,7 +39,8 @@ classifier_map = {
              'clf__knn__n_neighbors': [3, 5, 7, 9, 11]},
 
         ]
-    ]
+    ],
+    'KNN': [Pipeline([('scaler', StandardScaler()), ('clf', KNeighborsClassifier())]), [{'clf__n_neighbors': [3, 5, 7, 9, 11]}]],
 }
 
 
