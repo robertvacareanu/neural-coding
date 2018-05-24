@@ -72,6 +72,9 @@ fun removeTrials(dataSet: DataSet, unitsWithDataThreshold: Int = 5, emptyValue: 
  */
 fun removeTrials(dataSet: DataSet, trialsIndex: List<Int>) = dataSet.filterIndexed { index, _ -> !trialsIndex.contains(index) }
 
+/**
+ * Removes units that do not have data for at least [trialsWithDataThreshold] trials
+ */
 fun removeUnits(dataSet: DataSet, trialsWithDataThreshold: Int, emptyValue: Float = 0f): DataSet {
     val removeColumns = IntArray(dataSet.numberOfUnits, { dataSet.size })
 
@@ -92,6 +95,10 @@ fun removeUnits(dataSet: DataSet, trialsWithDataThreshold: Int, emptyValue: Floa
     return result
 }
 
+/**
+ * Returns a DataSet containing for every orientation the same number of trials
+ * Orientations are assumed to be from [0, 45, 90, 135, 180, 225, 270, 315]
+ */
 fun balance(dataSet: DataSet): DataSet {
     val trials = IntArray(8, { orientation -> dataSet.count { it.orientation == orientation * 45 } })
     println(trials.joinToString())
@@ -130,4 +137,4 @@ fun removeTrialsWithLeastFeatures(dataSet: DataSet, skip: Int = 5, emptyValue: F
 /**
  * Apply filters given as parameter to the dataset and return a new one
  */
-fun filterDataset(dataSet: DataSet, filters: List<DataPoint.() -> Boolean>) = dataSet.multiFilter(filters)
+fun filterDataSet(dataSet: DataSet, filters: List<DataPoint.() -> Boolean>) = dataSet.multiFilter(filters)
