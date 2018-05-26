@@ -1,13 +1,13 @@
 package main
 
-import logger.Log
+import algorithm.processor.processUnsorted
+import exporter.exportCSV
 import model.Spike
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartUtilities
 import org.jfree.chart.plot.PlotOrientation
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
-import reader.MetadataReader
 import java.io.File
 import kotlin.math.abs
 
@@ -19,15 +19,11 @@ import kotlin.math.abs
  * Those paths are expected to be valid.
  */
 fun main(args: Array<String>) {
-    Log.v("main", "In main now")
-    println(args[0])
-    val metadataReader = MetadataReader(args[0])
-    println(metadataReader.readEPD())
-    println("\n\n")
-    println(metadataReader.readSPKTWE())
-    println("\n\n")
-    println(metadataReader.readSSD())
-    Log.v("main", "Exit main now")
+    if (args.size != 2) {
+        println("Expected 2 args")
+    } else {
+        exportCSV(processUnsorted(args[0]), args[1])
+    }
 }
 
 /**
