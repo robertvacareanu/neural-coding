@@ -1,8 +1,22 @@
 package main
 
-import algorithm.processor.processUnsorted
+import algorithm.extractor.data.AfterStim
+import algorithm.extractor.data.AfterStimOn
+import algorithm.extractor.data.BetweenStim
+import algorithm.extractor.data.BetweenTimestamps
+import algorithm.extractor.feature.FeatureExtractor
+import algorithm.extractor.feature.SingleValueFeatureExtractor
+import algorithm.extractor.value.*
+import algorithm.processor.process
 import exporter.exportCSV
 import model.Spike
+import model.TrialData
+import model.metadata.SpikeMetadata
+import reader.spikes.DataSpikeReader
+import reader.MetadataReader
+import net.sourceforge.argparse4j.ArgumentParsers
+import net.sourceforge.argparse4j.impl.Arguments
+import net.sourceforge.argparse4j.inf.ArgumentParserException
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartUtilities
 import org.jfree.chart.plot.PlotOrientation
@@ -19,11 +33,88 @@ import kotlin.math.abs
  * Those paths are expected to be valid.
  */
 fun main(args: Array<String>) {
-    if (args.size != 2) {
-        println("Expected 2 args")
-    } else {
-        exportCSV(processUnsorted(args[0]), args[1])
+    val parser = ArgumentParsers.newFor("Neural-Coding")
+            .build()
+            .description("Arguments for generating the feature file")
+
+    val valueExtractors = mapOf(
+            "meanamplitude" to MeanAmplitude::class.java,
+            "ma" to MeanAmplitude::class.java,
+            "meanamplitudeoffirstspike" to MeanAmplitudeOfFirstSpike::class.java,
+            "mafs" to MeanAmplitudeOfFirstSpike::class.java,
+            "meanarea" to MeanArea::class.java,
+            "marea" to MeanArea::class.java,
+            "meanperimeter" to MeanPerimeter::class.java,
+            "mp" to MeanPerimeter::class.java,
+            "meanwidth" to MeanWidth::class.java,
+            "mw" to MeanWidth::class.java
+    )
+
+    val featureExtractors = mapOf(
+            "singlevalueextractor" to SingleValueFeatureExtractor::class.java,
+            "sve" to SingleValueFeatureExtractor::class.java
+    )
+
+    val reader = mapOf(
+            "betweenstim" to BetweenStim::class.java,
+            "bs" to BetweenStim::class.java,
+            "afterstim" to AfterStim::class.java,
+            "as" to BetweenStim::class.java
+    )
+
+    with(parser) {
+        addArgument("--path", "-p")
+                .type(String::class.java)
+                .help("Path to the folder containing the metadata")
+        addArgument("--export", "-e")
+                .type(String::class.java)
+                .help("Path to the where to store the result file")
+        addArgument("--reader", "-r")
+                .type(String::class.java)
+                .required(false)
+                .setDefault("BetweenStim")
+                .help("Type of spike reader to use. Default is BetweenStim")
+        addArgument("--value-extractor", "-ve")
+                .type(String::class.java)
+                .required(false)
+                .setDefault("MeanAmplitude")
+                .help("Type of value extractor to use. Default is MeanAmplitude")
+        addArgument("--feature-extractor", "--fe")
+                .type(String::class.java)
+                .required(false)
+                .setDefault("SingleValueExtractor")
+                .help("Type of feature extractor to use. Default is SingleValueExtractor")
+        addArgument("--sorted", "-s")
+                .action(Arguments.storeTrue())
+                .help("Process on sorted data")
     }
+    val namespace = parser.parseArgs(args)
+    println(namespace)
+    with(namespace) {
+        if(attrs["value_extractor"]!!.toString().toLowerCase() !in valueExtractors) {
+            parser.handleError(ArgumentParserException("Value extractor not valid. Should be one of: ${valueExtractors.keys.joinToString()}. Not case sensitive", parser))
+        }
+        if(attrs["feature_extractor"]!!.toString().toLowerCase() !in featureExtractors) {
+            parser.handleError(ArgumentParserException("Feature extractor not valid. Should be one of: ${featureExtractors.keys.joinToString()}. Not case sensitive", parser))
+        }
+        if(attrs["reader"]!!.toString().toLowerCase() !in reader) {
+            parser.handleError(ArgumentParserException("Reader not valid. Should be one of: ${reader.keys.joinToString()}. Not case sensitive", parser))
+        }
+    }
+    val mr = MetadataReader(namespace["path"])
+    val spktwe = mr.readSPKTWE()
+    val dsr = if(namespace["sorted"]) DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSSD())) else DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
+
+    val c = valueExtractors[namespace["value_extractor"]]!!.constructors[1]
+    if((c.parameterCount != 2) and (c.parameterCount != 3)) {
+        return
+    }
+    val ve = if(c.parameterCount == 2) c.newInstance(spktwe.waveformSpikeOffset, 0f) else c.newInstance(spktwe.waveformInternalSamplingFrequency, spktwe.waveformSpikeOffset, 0f)
+    exportCSV(
+            process(dsr, ve as ValueExtractor<Spike, Float>, reader[namespace["reader"]]!!.constructors[0].newInstance(dsr) as BetweenTimestamps, featureExtractors[namespace.getString("feature_extractor")!!.toLowerCase()]!!.newInstance() as FeatureExtractor<TrialData, DataSet>),
+            namespace["export"]
+    )
+
 }
 
 /**

@@ -2,7 +2,7 @@ group 'utcn'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.2.21'
+    ext.kotlin_version = '1.2.41'
 
     repositories {
         jcenter()
@@ -31,6 +31,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21"
+    compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.8.1'
 
     compile group: 'jfree', name: 'jfreechart', version: '1.0.13'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
