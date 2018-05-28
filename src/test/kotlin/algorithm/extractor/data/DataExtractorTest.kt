@@ -1,4 +1,4 @@
-package extractor.data
+package algorithm.extractor.data
 
 import algorithm.extractor.data.*
 import main.almostEqual
@@ -28,6 +28,9 @@ class DataExtractorTest {
         val betweenStim = BetweenStim(dr)
 
         val testData = betweenStim.extractData(listOf(trials[0], trials[1]))
+        val s1 = testData[0][0][0]
+        val points = s1.waveform.mapIndexed { index, float -> Pair(index / 32000.toDouble(), float.toDouble()) }//.filter { values.second < 0 }
+        points.forEach { println(it) }
 
         assert(testData[0].orientation == 0)
 

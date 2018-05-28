@@ -1,4 +1,4 @@
-package extractor.feature
+package algorithm.extractor.feature
 
 import algorithm.extractor.feature.SingleValueFeatureExtractor
 import algorithm.extractor.feature.WindowValueFeatureExtractor

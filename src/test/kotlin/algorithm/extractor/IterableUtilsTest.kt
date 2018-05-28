@@ -1,4 +1,4 @@
-package extractor
+package algorithm.extractor
 
 import algorithm.multiFilter
 import algorithm.multiMap
