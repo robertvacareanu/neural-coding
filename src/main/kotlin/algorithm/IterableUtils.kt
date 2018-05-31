@@ -27,3 +27,13 @@ fun <T> Iterable<T>.multiFilter(filters: List<(T) -> Boolean>): List<T> = if (fi
         }
     }
 } else this.toList()
+
+fun Iterable<Int>.cumulativeSum(): List<Int> {
+    val result = mutableListOf<Int>()
+    var sum = 0
+    this.mapTo(result) {
+        sum += it
+        sum
+    }
+    return result
+}
