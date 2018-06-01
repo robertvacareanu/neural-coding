@@ -1,5 +1,6 @@
 package exporter
 
+import algorithm.cumulativeSum
 import main.orientation
 import reader.MetadataReader
 import reader.readFloatBinary
@@ -32,11 +33,30 @@ fun exportSpikeSortedWaveform(mr: MetadataReader) {
         val ssdTimestamps = readIntBinary(ssd.basePath + ssd.spikeTimestampsPath)
         val spktweTimestamps = readIntBinary(spktwe.basePath + spktwe.spikeTimestampsPath)
         val spikeIndices = arrayListOf<Int>()
-        ssdTimestamps.mapTo(spikeIndices) {
-            spktweTimestamps.indexOf(it)
+
+        //Split spikes based on channel
+        val cumulativeSumUnsorted = spktwe.spikesInEachChannel.cumulativeSum()
+        val spktweTimestampsSplit = mutableMapOf<String, IntArray>()
+        spktweTimestampsSplit[spktwe.storedChannelNames[0]] = spktweTimestamps.sliceArray(0 until cumulativeSumUnsorted[0])
+        (0 until cumulativeSumUnsorted.size - 1).forEach {
+            spktweTimestampsSplit[spktwe.storedChannelNames[it + 1]] = spktweTimestamps.sliceArray(cumulativeSumUnsorted[it] until cumulativeSumUnsorted[it + 1])
         }
 
+        val cumulativeSumSorted = ssd.spikesPerUnit.cumulativeSum()
         val spktweWaveform = readFloatBinary(spktwe.basePath + spktwe.spikeWaveformPath)
+
+        (0 until ssdTimestamps.size).forEach { timestampIndex ->
+            val unit = cumulativeSumSorted.indexOfFirst { timestampIndex < it }
+            val originName = ssd.origins[unit]
+            val channel = spktwe.storedChannelNames.indexOf(originName)
+
+            if (channel == 0) {
+                spikeIndices.add(spktweTimestampsSplit[originName]!!.indexOf(ssdTimestamps[timestampIndex]))
+            } else {
+                spikeIndices.add(cumulativeSumUnsorted[channel - 1] + spktweTimestampsSplit[originName]!!.indexOf(ssdTimestamps[timestampIndex]))
+
+            }
+        }
 
         val waveformLength = ssd.waveformLength
         val bb = ByteBuffer.allocate(waveformLength * 4)
@@ -47,6 +67,7 @@ fun exportSpikeSortedWaveform(mr: MetadataReader) {
                 bb.asFloatBuffer().put(spktweWaveform.slice((waveformLength * spikeIndices[it]) until (waveformLength * (spikeIndices[it] + 1))).toFloatArray())
                 os.write(bb.array())
                 bb.clear()
+
             }
         }
     }
