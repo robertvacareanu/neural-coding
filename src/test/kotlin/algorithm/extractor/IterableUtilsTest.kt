@@ -1,5 +1,6 @@
 package algorithm.extractor
 
+import algorithm.cumulativeSum
 import algorithm.multiFilter
 import algorithm.multiMap
 import algorithm.multiMapRight
@@ -58,5 +59,24 @@ class IterableUtilsTest {
         assert(base1[8] == 41)
         assert(base1[9] == 43)
         assert(base1[10] == 47)
+    }
+
+    @Test
+    fun cumulativeSumTest() {
+        var result = listOf(1, 2, 3, 4, 5).cumulativeSum()
+        assert(result[0] == 1)
+        assert(result[1] == 3)
+        assert(result[2] == 6)
+        assert(result[3] == 10)
+        assert(result[4] == 15)
+
+        result = listOf(-1, 0, 5, -4, 3, 10).cumulativeSum()
+        assert(result[0] == -1)
+        assert(result[1] == -1)
+        assert(result[2] == 4)
+        assert(result[3] == 0)
+        assert(result[4] == 3)
+        assert(result[5] == 13)
+
     }
 }
