@@ -1,9 +1,5 @@
-package algorithm.extractor
+package algorithm
 
-import algorithm.cumulativeSum
-import algorithm.multiFilter
-import algorithm.multiMap
-import algorithm.multiMapRight
 import org.junit.Test
 
 /**

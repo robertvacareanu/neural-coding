@@ -1,4 +1,4 @@
-package algorithm.extractor.processor
+package algorithm.processor
 
 import algorithm.processor.merge
 import algorithm.processor.normalize

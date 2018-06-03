@@ -1,6 +1,5 @@
-package algorithm.extractor.processor
+package algorithm.processor
 
-import algorithm.processor.*
 import main.*
 import model.Spike
 import model.TrialData
