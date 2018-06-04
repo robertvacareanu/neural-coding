@@ -1,6 +1,7 @@
 package files
 
 import exporter.exportCSV
+import importer.importCSV
 import main.DataPoint
 import main.orientation
 import org.junit.Test
@@ -9,7 +10,7 @@ import java.util.*
 
 /**
  * Created by robert on 6/3/18.
- * Test for functions that are working with files
+ * Test for functions that are working with files: [exportCSV], [importCSV]
  */
 class ImporterExporterTest {
 
@@ -23,7 +24,7 @@ class ImporterExporterTest {
                 DataPoint(5, floatArrayOf(41.0f, 42.0f, 43.0f))
         )
         exportCSV(dataSet, "importCSVExportCSVTestFile")
-        val resultDataSet = importer.read("importCSVExportCSVTestFile")
+        val resultDataSet = importer.importCSV("importCSVExportCSVTestFile")
 
         assert(Arrays.equals(resultDataSet[0].second, dataSet[0].second))
         assert(Arrays.equals(resultDataSet[1].second, dataSet[1].second))

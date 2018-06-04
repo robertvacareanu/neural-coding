@@ -8,7 +8,7 @@ import java.io.File
  * Created by robert on 5/30/18.
  * Read the file from the given path into a dataSet
  */
-fun read(path: String): DataSet {
+fun importCSV(path: String): DataSet {
     val file = File(path)
     val result = mutableListOf<DataPoint>()
     file.readLines().mapTo(result) {

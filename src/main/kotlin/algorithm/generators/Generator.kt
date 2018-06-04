@@ -26,7 +26,7 @@ import reader.spikes.SpikeReader
 
 /**
  * Created by robert on 4/23/18.
- * Helper function to generate datasets
+ * Helper function to generate dataSets
  */
 fun generateFiles(spikeReader: SpikeReader,
                   valueExtractors: List<ValueExtractor<Spike, Float>>,
@@ -68,7 +68,6 @@ fun generateGeometricFeatures(paths: List<String>,
         aggregateHorizontally(
                 listOf(
                         process(sr, MeanAmplitude(spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
-                        process(sr, MeanAmplitudeOfFirstSpike(spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
                         process(sr, MeanArea(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
                         process(sr, MeanPerimeter(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
                         process(sr, MeanWidth(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers)
