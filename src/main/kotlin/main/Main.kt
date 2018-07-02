@@ -1,27 +1,26 @@
 package main
 
 import algorithm.extractor.data.AfterStim
-import algorithm.extractor.data.AfterStimOn
 import algorithm.extractor.data.BetweenStim
 import algorithm.extractor.data.BetweenTimestamps
-import algorithm.extractor.feature.FeatureExtractor
+import algorithm.extractor.data.RandomAfterStimOn
 import algorithm.extractor.feature.SingleValueFeatureExtractor
 import algorithm.extractor.value.*
-import algorithm.processor.process
-import exporter.exportCSV
-import model.Spike
-import model.TrialData
-import model.metadata.SpikeMetadata
+import algorithm.processor.*
 import reader.spikes.DataSpikeReader
-import reader.MetadataReader
+import exporter.exportCSV
+import importer.importCSV
+import model.Spike
+import model.Trial
+import model.metadata.SpikeMetadata
 import net.sourceforge.argparse4j.ArgumentParsers
 import net.sourceforge.argparse4j.impl.Arguments
-import net.sourceforge.argparse4j.inf.ArgumentParserException
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartUtilities
 import org.jfree.chart.plot.PlotOrientation
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
+import reader.MetadataReader
 import java.io.File
 import kotlin.math.abs
 
@@ -63,13 +62,17 @@ fun main(args: Array<String>) {
     )
 
     with(parser) {
-        addArgument("--path", "-p")
+        parser.addArgument("--path", "-p")
                 .type(String::class.java)
+                .nargs("*")
                 .help("Path to the folder containing the metadata")
-        addArgument("--export", "-e")
+                .required(true)
+        parser.addArgument("--export", "-e")
                 .type(String::class.java)
                 .help("Path to the where to store the result file")
+                .required(true)
         addArgument("--reader", "-r")
+
                 .type(String::class.java)
                 .required(false)
                 .setDefault("BetweenStim")
@@ -87,33 +90,119 @@ fun main(args: Array<String>) {
         addArgument("--sorted", "-s")
                 .action(Arguments.storeTrue())
                 .help("Process on sorted data")
+        addArgument("--rason")
+                .required(false)
+                .type(Int::class.java)
+                .nargs(2)
     }
-    val namespace = parser.parseArgs(args)
-    println(namespace)
-    with(namespace) {
-        if(attrs["value_extractor"]!!.toString().toLowerCase() !in valueExtractors) {
-            parser.handleError(ArgumentParserException("Value extractor not valid. Should be one of: ${valueExtractors.keys.joinToString()}. Not case sensitive", parser))
-        }
-        if(attrs["feature_extractor"]!!.toString().toLowerCase() !in featureExtractors) {
-            parser.handleError(ArgumentParserException("Feature extractor not valid. Should be one of: ${featureExtractors.keys.joinToString()}. Not case sensitive", parser))
-        }
-        if(attrs["reader"]!!.toString().toLowerCase() !in reader) {
-            parser.handleError(ArgumentParserException("Reader not valid. Should be one of: ${reader.keys.joinToString()}. Not case sensitive", parser))
-        }
-    }
-    val mr = MetadataReader(namespace["path"])
-    val spktwe = mr.readSPKTWE()
-    val dsr = if(namespace["sorted"]) DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSSD())) else DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()))
 
-    val c = valueExtractors[namespace["value_extractor"]]!!.constructors[1]
-    if((c.parameterCount != 2) and (c.parameterCount != 3)) {
-        return
+    val subparsers = parser.addSubparsers().help("scripts")
+
+    val destructiveFunctionsParser = subparsers.addParser("ds").help("Destructive scripts")
+
+    with(destructiveFunctionsParser) {
+        addArgument("--rfi")
+                .required(false)
+                .action(Arguments.storeTrue())
+                .help("removeIfEmpty")
+        addArgument("--rt")
+                .required(false)
+                .type(Int::class.java)
+                .help("removeTrials")
+        addArgument("--ru")
+                .required(false)
+                .type(Int::class.java)
+                .help("removeUnits")
+        addArgument("--rtwlf")
+                .required(false)
+                .type(Int::class.java)
+                .help("removeTrialsWithLeastFeatures")
+        addArgument("--balance")
+                .required(false)
+                .action(Arguments.storeTrue())
+                .help("removeTrialsWithLeastFeatures")
+        addArgument("--rfo")
+                .required(false)
+                .action(Arguments.storeTrue())
+                .help("removeFirstOccurrence")
     }
-    val ve = if(c.parameterCount == 2) c.newInstance(spktwe.waveformSpikeOffset, 0f) else c.newInstance(spktwe.waveformInternalSamplingFrequency, spktwe.waveformSpikeOffset, 0f)
-    exportCSV(
-            process(dsr, ve as ValueExtractor<Spike, Float>, reader[namespace["reader"]]!!.constructors[0].newInstance(dsr) as BetweenTimestamps, featureExtractors[namespace.getString("feature_extractor")!!.toLowerCase()]!!.newInstance() as FeatureExtractor<TrialData, DataSet>),
-            namespace["export"]
-    )
+
+    val constructiveFunctionsParser = subparsers.addParser("cs").help("Constructive scripts")
+
+    with(constructiveFunctionsParser) {
+        addArgument("--n")
+                .required(false)
+                .action(Arguments.storeTrue())
+                .help("normalize")
+        addArgument("--ah")
+                .required(false)
+                .action(Arguments.storeTrue())
+                .help("aggregateHorizontally")
+        addArgument("--av")
+                .required(false)
+                .action(Arguments.storeTrue())
+                .help("aggregateVertically")
+    }
+
+
+    val namespace = parser.parseArgs(args)
+    val paths = namespace.getList<String>("path")
+
+    fun produceDataSet(path: String): DataSet {
+        val mr = MetadataReader(path)
+        val spikeReader = if(namespace.getBoolean("sorted")!!) DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSSD()), listOf<Trial.() -> Boolean>({ contrast == 100 })) else DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()), listOf<Trial.() -> Boolean>({ contrast == 100 }))
+        val fe = SingleValueFeatureExtractor()
+        val c = valueExtractors[namespace["value_extractor"]]!!.constructors[1]
+        val spktwe = mr.readSPKTWE()
+        val ve = if(c.parameterCount == 2) c.newInstance(spktwe.waveformSpikeOffset, 0f) else c.newInstance(spktwe.waveformInternalSamplingFrequency, spktwe.waveformSpikeOffset, 0f)
+        var dataset = if(namespace.getList<Int>("rason") != null) {
+            val ints = namespace.getList<Int>("rason")
+            process(spikeReader, ve as ValueExtractor<Spike, Float>, RandomAfterStimOn(spikeReader, ints[0], ints[1]), fe)
+        } else {
+            process(spikeReader, ve as ValueExtractor<Spike, Float>, reader[namespace.getString("reader").toLowerCase()]!!.constructors[0].newInstance(spikeReader) as BetweenTimestamps, fe)
+        }
+
+        if(namespace.getBoolean("rfi")) {
+            dataset = removeIfEmpty(dataset)
+        }
+        if(namespace.getInt("rt") != null) {
+            dataset = removeTrials(dataset, namespace.getInt("rt"))
+        }
+        if(namespace.getInt("ru") != null) {
+            dataset = removeUnits(dataset, namespace.getInt("ru"))
+        }
+        if(namespace.getInt("rtwlf") != null) {
+            dataset = removeTrialsWithLeastFeatures(dataset, namespace.getInt("rtwlf"))
+        }
+        if(namespace.getBoolean("balance")) {
+            dataset = balance(dataset)
+        }
+        if(namespace.getBoolean("rfo")) {
+            dataset = removeFirstOccurence(dataset)
+        }
+
+        return dataset
+    }
+
+    when {
+        paths.size > 1 -> {
+            println("Bigger than 2")
+            val datasets = mutableListOf<DataSet>()
+            paths.mapTo(datasets) { importCSV(it) }
+
+            when {
+                namespace.getBoolean("ah") -> exportCSV(aggregateHorizontally(datasets), namespace.getString("export"))
+                namespace.getBoolean("av") -> exportCSV(aggregateVertically(datasets), namespace.getString("export"))
+                else -> paths.mapTo(datasets) {
+                    produceDataSet(it)
+                }
+            }
+            exportCSV(aggregateVertically(datasets), namespace.getString("export"))
+
+        }
+        paths.size == 1 -> exportCSV(produceDataSet(paths[0]), namespace.getString("export"))
+        else -> println("Should be at least 1")
+    }
 
 }
 
