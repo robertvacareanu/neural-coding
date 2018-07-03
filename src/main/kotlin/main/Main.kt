@@ -35,6 +35,7 @@ fun main(args: Array<String>) {
     val parser = ArgumentParsers.newFor("Neural-Coding")
             .build()
             .description("Arguments for generating the feature file")
+            .defaultHelp(true)
 
     val valueExtractors = mapOf(
             "meanamplitude" to MeanAmplitude::class.java,
@@ -72,7 +73,6 @@ fun main(args: Array<String>) {
                 .help("Path to the where to store the result file")
                 .required(true)
         addArgument("--reader", "-r")
-
                 .type(String::class.java)
                 .required(false)
                 .setDefault("BetweenStim")
@@ -94,6 +94,7 @@ fun main(args: Array<String>) {
                 .required(false)
                 .type(Int::class.java)
                 .nargs(2)
+                .help("Use random after stim on as data extractor, e.g. 2240, 9600")
     }
 
     val subparsers = parser.addSubparsers().help("scripts")
@@ -101,7 +102,7 @@ fun main(args: Array<String>) {
     val destructiveFunctionsParser = subparsers.addParser("ds").help("Destructive scripts")
 
     with(destructiveFunctionsParser) {
-        addArgument("--rfi")
+        addArgument("--rie")
                 .required(false)
                 .action(Arguments.storeTrue())
                 .help("removeIfEmpty")
@@ -144,64 +145,74 @@ fun main(args: Array<String>) {
                 .help("aggregateVertically")
     }
 
-
-    val namespace = parser.parseArgs(args)
-    val paths = namespace.getList<String>("path")
-
-    fun produceDataSet(path: String): DataSet {
-        val mr = MetadataReader(path)
-        val spikeReader = if(namespace.getBoolean("sorted")!!) DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSSD()), listOf<Trial.() -> Boolean>({ contrast == 100 })) else DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()), listOf<Trial.() -> Boolean>({ contrast == 100 }))
-        val fe = SingleValueFeatureExtractor()
-        val c = valueExtractors[namespace["value_extractor"]]!!.constructors[1]
-        val spktwe = mr.readSPKTWE()
-        val ve = if(c.parameterCount == 2) c.newInstance(spktwe.waveformSpikeOffset, 0f) else c.newInstance(spktwe.waveformInternalSamplingFrequency, spktwe.waveformSpikeOffset, 0f)
-        var dataset = if(namespace.getList<Int>("rason") != null) {
-            val ints = namespace.getList<Int>("rason")
-            process(spikeReader, ve as ValueExtractor<Spike, Float>, RandomAfterStimOn(spikeReader, ints[0], ints[1]), fe)
+    try {
+        val namespace = parser.parseArgs(args)
+        print(namespace)
+        if (!namespace.attrs.containsKey("path")) {
+            parser.printHelp()
         } else {
-            process(spikeReader, ve as ValueExtractor<Spike, Float>, reader[namespace.getString("reader").toLowerCase()]!!.constructors[0].newInstance(spikeReader) as BetweenTimestamps, fe)
-        }
+            val paths = namespace.getList<String>("path")
 
-        if(namespace.getBoolean("rfi")) {
-            dataset = removeIfEmpty(dataset)
-        }
-        if(namespace.getInt("rt") != null) {
-            dataset = removeTrials(dataset, namespace.getInt("rt"))
-        }
-        if(namespace.getInt("ru") != null) {
-            dataset = removeUnits(dataset, namespace.getInt("ru"))
-        }
-        if(namespace.getInt("rtwlf") != null) {
-            dataset = removeTrialsWithLeastFeatures(dataset, namespace.getInt("rtwlf"))
-        }
-        if(namespace.getBoolean("balance")) {
-            dataset = balance(dataset)
-        }
-        if(namespace.getBoolean("rfo")) {
-            dataset = removeFirstOccurence(dataset)
-        }
+            fun produceDataSet(path: String): DataSet {
+                val mr = MetadataReader(path)
+                val spikeReader = if (namespace.getBoolean("sorted")!!) DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSSD()), listOf<Trial.() -> Boolean>({ contrast == 100 })) else DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSPKTWE()), listOf<Trial.() -> Boolean>({ contrast == 100 }))
+                val fe = SingleValueFeatureExtractor()
+                val c = valueExtractors[namespace.getString("value_extractor").toLowerCase()]!!.constructors[1]
+                val spktwe = mr.readSPKTWE()
+                val ve = if (c.parameterCount == 2) c.newInstance(spktwe.waveformSpikeOffset, 0f) else c.newInstance(spktwe.waveformInternalSamplingFrequency, spktwe.waveformSpikeOffset, 0f)
+                var dataset = if (namespace.getList<Int>("rason") != null) {
+                    val ints = namespace.getList<Int>("rason")
+                    process(spikeReader, ve as ValueExtractor<Spike, Float>, RandomAfterStimOn(spikeReader, ints[0], ints[1]), fe)
+                } else {
+                    process(spikeReader, ve as ValueExtractor<Spike, Float>, reader[namespace.getString("reader").toLowerCase()]!!.constructors[0].newInstance(spikeReader) as BetweenTimestamps, fe)
+                }
 
-        return dataset
-    }
+                if (namespace.getBoolean("rie")) {
+                    dataset = removeIfEmpty(dataset)
+                }
+                if (namespace.getInt("rt") != null) {
+                    dataset = removeTrials(dataset, namespace.getInt("rt"))
+                }
+                if (namespace.getInt("ru") != null) {
+                    dataset = removeUnits(dataset, namespace.getInt("ru"))
+                }
+                if (namespace.getInt("rtwlf") != null) {
+                    dataset = removeTrialsWithLeastFeatures(dataset, namespace.getInt("rtwlf"))
+                }
+                if (namespace.getBoolean("balance")) {
+                    dataset = balance(dataset)
+                }
+                if (namespace.getBoolean("rfo")) {
+                    dataset = removeFirstOccurence(dataset)
+                }
 
-    when {
-        paths.size > 1 -> {
-            println("Bigger than 2")
-            val datasets = mutableListOf<DataSet>()
-            paths.mapTo(datasets) { importCSV(it) }
+                return dataset
+            }
 
             when {
-                namespace.getBoolean("ah") -> exportCSV(aggregateHorizontally(datasets), namespace.getString("export"))
-                namespace.getBoolean("av") -> exportCSV(aggregateVertically(datasets), namespace.getString("export"))
-                else -> paths.mapTo(datasets) {
-                    produceDataSet(it)
-                }
-            }
-            exportCSV(aggregateVertically(datasets), namespace.getString("export"))
+                paths.size > 1 -> {
+                    println("Bigger than 2")
+                    val datasets = mutableListOf<DataSet>()
+                    paths.mapTo(datasets) { importCSV(it) }
 
+                    when {
+                        namespace.getBoolean("ah") -> exportCSV(aggregateHorizontally(datasets), namespace.getString("export"))
+                        namespace.getBoolean("av") -> exportCSV(aggregateVertically(datasets), namespace.getString("export"))
+                        else -> paths.mapTo(datasets) {
+                            produceDataSet(it)
+                        }
+                    }
+                    exportCSV(aggregateVertically(datasets), namespace.getString("export"))
+
+                }
+                paths.size == 1 -> exportCSV(produceDataSet(paths[0]), namespace.getString("export"))
+                else -> println("Should be at least 1")
+            }
         }
-        paths.size == 1 -> exportCSV(produceDataSet(paths[0]), namespace.getString("export"))
-        else -> println("Should be at least 1")
+    } catch (e: Exception) {
+        e.printStackTrace()
+////        parser.printHelp()
+////        println("HERE")
     }
 
 }
