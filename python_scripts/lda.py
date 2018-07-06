@@ -10,25 +10,35 @@ from sklearn.preprocessing import StandardScaler
 style.use("ggplot")
 
 
-def perform_lda(path, orientation1, orientation2, color1, color2, save_path, title):
+def perform_lda(path, orientation1, orientation2, color1, color2, save_path, title, oned):
     data = pd.read_csv(path, header=None)
     x = data.iloc[:, :-1].values
     y = data.iloc[:, -1].values
     scaler = StandardScaler()
-
     x_norm = scaler.fit_transform(x)
     new_x = x_norm[np.logical_or(y == orientation1, y == orientation2)]
     new_y = y[np.logical_or(y == orientation1, y == orientation2)]
 
-    lda = LDA()
-    lda_transformed = pd.DataFrame(lda.fit_transform(new_x, new_y))
+    if oned:
+        lda = LDA()
+        lda_transformed = pd.DataFrame(lda.fit_transform(new_x, new_y))
 
-    plt.eventplot(lda_transformed[new_y == orientation1][0], orientation='horizontal', label=orientation1,
-                  colors=color1)
-    plt.eventplot(lda_transformed[new_y == orientation2][0], orientation='horizontal', label=orientation2,
-                  colors=color2)
+        plt.eventplot(lda_transformed[new_y == orientation1][0], orientation='horizontal', label=orientation1,
+                      colors=color1)
+        plt.eventplot(lda_transformed[new_y == orientation2][0], orientation='horizontal', label=orientation2,
+                      colors=color2)
+    else:
+        lda = LDA(n_components=2)
+        lda_transformed = pd.DataFrame(lda.fit_transform(x, y))
+
+        plt.scatter(lda_transformed[y == orientation1][0], lda_transformed[y == orientation1][1], label=orientation1,
+                    c='r')
+        plt.scatter(lda_transformed[y == orientation2][0], lda_transformed[y == orientation2][1], label=orientation2,
+                    c='b')
 
     plt.title(title)
+    plt.xlabel('LDA feature 1')
+    plt.ylabel('LDA feature 2')
     plt.legend()
     if save_path is not None:
         plt.savefig(save_path)
@@ -46,7 +56,10 @@ parser.add_argument("-s", "--save", required=False, default=None,
                     help="Path to save the plot. By default only displays the plot")
 parser.add_argument("-t", "--title", required=True,
                     help="Path to save the plot. By default only displays the plot")
+parser.add_argument("--oned", required=False, action='store_true',
+                    help="Path to save the plot. By default only displays the plot")
 
 result = parser.parse_args(sys.argv[1:])
+print(result)
 perform_lda(result.path, result.orientation[0], result.orientation[1], result.color[0], result.color[1], result.save,
-            result.title)
+            result.title, result.oned)

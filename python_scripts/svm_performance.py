@@ -5,21 +5,18 @@ import pandas as pd
 from matplotlib import style
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from sklearn.pipeline import Pipeline
 
 style.use("ggplot")
 from sklearn.decomposition import PCA
 
 
-def svm_comparison(path, orientations, histogram, repetitions, size, pca_percent):
+def svm_comparison(path, orientations, histogram, repetitions, size, pca_percent, kernel, cost, gamma, degree):
     data = pd.read_csv(path, header=None)
     X = data.iloc[:, :-1].values
     Y = data.iloc[:, -1].values
-
-    print(Y)
-    print(Y)
 
     if orientations is not None:
         new_x = X[np.logical_or(Y == orientations[0], Y == orientations[1])]
@@ -39,14 +36,15 @@ def svm_comparison(path, orientations, histogram, repetitions, size, pca_percent
     scores1 = []
     for _ in range(0, repetitions):
         X_train, X_test, y_train, y_test = train_test_split(new_x, new_y, test_size=size)
-        pipeline = Pipeline([('scaler', StandardScaler()), ('pca', PCA(n_components=10)), ('SVM', SVC(kernel='rbf', C=2, gamma=0.015625))])
+        pipeline = Pipeline(
+            [('scaler', StandardScaler()), ('SVM', SVC(kernel=kernel, C=cost, gamma=gamma, degree = degree))])
         pipeline.fit(X_train, y_train)
         scores1.append(metrics.accuracy_score(y_test, pipeline.predict(X_test)))
     print(np.mean(scores1))
     print(np.std(scores1))
 
     if histogram:
-        plt.title('SVM performance for geometric features')
+        plt.title('SVM performance for geometric features. All orientations')
         plt.xlabel('Accuracy')
         plt.ylabel('Total')
         plt.hist(scores1, range=[0.0, 1.0], align='mid', bins=20)
@@ -61,8 +59,13 @@ parser.add_argument("--histogram", action='store_true',
                     help="Plot histogram with the results")
 parser.add_argument("-r", "--repetitions", type=int, required=False, default=1000)
 parser.add_argument("-s", "--size", type=float, required=False, default=0.1)
+parser.add_argument("-k", "--kernel", required=False, default='linear')
+parser.add_argument("-c", "--cost", type=float, required=False, default=4.0)
+parser.add_argument("-k1", "--gamma", type=float, required=False, default=1.0)
+parser.add_argument("-k2", "--degree", type=float, required=False, default=1.0)
 parser.add_argument("--pca", type=float, required=False, default=None, help="Percentage of variance to take")
 result = parser.parse_args()
+print(result)
 svm_comparison(result.path, result.orientation, result.histogram,
                result.repetitions,
-               result.size, result.pca)
+               result.size, result.pca, result.kernel, result.cost, result.gamma, result.degree)

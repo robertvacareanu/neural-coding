@@ -12,13 +12,10 @@ from sklearn.svm import SVC
 style.use("ggplot")
 
 
-def svm_comparison(path, orientations, repetitions):
+def compute_p_value(path, orientations, repetitions, kernel, cost, gamma, degree):
     data = pd.read_csv(path, header=None)
     X = data.iloc[:, :-1].values
     Y = data.iloc[:, -1].values
-
-    print(Y)
-    print(Y)
 
     if orientations is not None:
         new_x = X[np.logical_or(Y == orientations[0], Y == orientations[1])]
@@ -28,7 +25,7 @@ def svm_comparison(path, orientations, repetitions):
         new_y = Y
 
     cv = StratifiedKFold(5)
-    pipeline = Pipeline([('scaler', StandardScaler()), ('SVM', SVC(kernel='rbf', C=2, gamma=0.25))])
+    pipeline = Pipeline([('scaler', StandardScaler()), ('SVM', SVC(kernel=kernel, C=cost, gamma=gamma, degree=degree))])
     score, permutation_scores, pvalue = permutation_test_score(
         pipeline, new_x, new_y, scoring="accuracy", cv=cv, n_permutations=repetitions, n_jobs=-1)
 
@@ -38,7 +35,7 @@ def svm_comparison(path, orientations, repetitions):
     plt.plot(2 * [score], ylim, '--g', linewidth=3,
              label='Classification Score'
                    ' (pvalue %s)' % pvalue)
-    plt.plot(2 * [1. / 2], ylim, '--k', linewidth=3, label='Luck')
+    plt.plot(2 * [1. / np.unique(Y).shape[0]], ylim, '--k', linewidth=3, label='Luck')
 
     plt.ylim(ylim)
     plt.legend()
@@ -51,5 +48,11 @@ parser.add_argument("-p", "--path", required=True, help="Path to the file with t
 parser.add_argument("-o", "--orientation", nargs="*", type=int, required=False, default=None,
                     help="Orientation to plot svm for. Default is 0 and 90")
 parser.add_argument("-r", "--repetitions", type=int, required=False, default=1000)
+parser.add_argument("-k", "--kernel", required=False, default='linear')
+parser.add_argument("-c", "--cost", type=float, required=False, default=4.0)
+parser.add_argument("-k1", "--gamma", type=float, required=False, default=1.0)
+parser.add_argument("-k2", "--degree", type=float, required=False, default=1.0)
 result = parser.parse_args()
-svm_comparison(result.path, result.orientation, result.repetitions)
+print(result)
+compute_p_value(result.path, result.orientation, result.repetitions, result.kernel, result.cost, result.gamma,
+                result.degree)

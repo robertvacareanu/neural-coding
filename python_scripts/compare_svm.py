@@ -8,9 +8,8 @@ from matplotlib import style
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.model_selection import StratifiedKFold
-from sklearn.multiclass import OneVsOneClassifier
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-
 
 style.use("ggplot")
 from sklearn import svm
@@ -23,7 +22,6 @@ def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp,
     else:
         text = aliases
 
-    # colors = []
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
     for index, path in enumerate(paths):
@@ -78,11 +76,12 @@ def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp,
                     score = 0
                     time = 0
                     skf = StratifiedKFold(n_splits=2, shuffle=True)
-                    for x in range(0, 1000):
+                    for x in range(0, 5000):
                         for i, (train, test) in enumerate(skf.split(new_x, new_y)):
                             xtrain, xval = new_x[train], new_x[test]
                             ytrain, yval = new_y[train], new_y[test]
-                            clf = OneVsOneClassifier(svm.NuSVC(kernel='rbf'))
+                            clf = Pipeline(
+                                [('scaler', StandardScaler()), ('SVM', svm.SVC(kernel='linear', C=1))])
                             clf.fit(xtrain, ytrain)
                             time += 1
                             score += clf.score(xval, yval)
@@ -95,7 +94,7 @@ def compare_svm(paths, orientation1, orientation2, save_path, aliases, lda_comp,
             else:
                 ax1.plot(label_names, s, marker='o', label=text[index], color=c[index])
 
-    plt.xlabel("Data set number")
+    plt.xlabel("Time")
     plt.ylabel("Accuracy")
     ax1.set_ylim(0.3, 1.0)
 
@@ -128,5 +127,6 @@ parser.add_argument("--lda", required=False, type=int, default=None, help="Apply
 parser.add_argument("-t", "--title", required=False, default=None, help="Title of the plot")
 
 result = parser.parse_args(sys.argv[1:])
+print(result)
 compare_svm(result.path, result.orientation[0], result.orientation[1], result.save, result.alias, result.lda,
             result.pca, result.title, result.color)
