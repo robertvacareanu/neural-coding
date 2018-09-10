@@ -44,6 +44,8 @@ dependencies {
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21"
     compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.8.1'
 
+    compile 'ch.obermuhlner:big-math:2.0.0'
+
     compile group: 'jfree', name: 'jfreechart', version: '1.0.13'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
     compile group: 'nz.ac.waikato.cms.weka', name: 'LibSVM', version: '1.0.4'

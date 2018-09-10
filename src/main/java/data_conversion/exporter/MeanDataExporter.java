@@ -1,7 +1,8 @@
 package data_conversion.exporter;
 
+import algorithm.extractor.feature.ExtractorConstructorKt;
 import algorithm.extractor.feature.SingleValueFeatureExtractor;
-import algorithm.extractor.value.MeanAmplitude;
+import algorithm.extractor.value.Amplitude;
 import algorithm.processor.SelectorKt;
 import data_conversion.converter.FileConverterFactory;
 import data_conversion.file_utility.FileTypes;
@@ -21,8 +22,8 @@ public class MeanDataExporter extends DataExporter {
         trialData = SelectorKt.removeIfNotEnoughSpikes(trialData, 500);
 
         SingleValueFeatureExtractor singleValueFeatureExtractor = new SingleValueFeatureExtractor();
-        MeanAmplitude entireChannelMeanAmplitude = new MeanAmplitude(super.getSpikeMetadata().getWaveformSpikeOffset());
-        List<Pair<Integer, float[]>> extractedData = singleValueFeatureExtractor.extract(trialData, entireChannelMeanAmplitude::extractValue);
+        Amplitude entireChannelMeanAmplitude = new Amplitude(super.getSpikeMetadata().getWaveformSpikeOffset());
+        List<Pair<Integer, float[]>> extractedData = singleValueFeatureExtractor.extract(trialData, ExtractorConstructorKt.constructExtractorDefault(entireChannelMeanAmplitude::extractValue));
 
         List<Pair<Integer, float[]>> cleanData = SelectorKt.removeIfEmpty(extractedData);
 

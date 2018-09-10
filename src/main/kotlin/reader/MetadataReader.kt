@@ -19,25 +19,25 @@ import java.io.File
  */
 class MetadataReader {
 
-    private val ssdPath: String
-    private val spktwePath: String
-    private val epdPath: String
-    private val etiPath: String
+//    private val ssdPath: String
+//    private val spktwePath: String
+//    private val epdPath: String
+//    private val etiPath: String
+    private val paths = mutableListOf<String>()
 
 
     constructor(basepath: String) {
         val file = File(basepath)
-        val paths = mutableListOf<String>()
         file.walkTopDown().filter { it.name.endsWith(".epd") or it.name.endsWith(".spktwe") or it.name.endsWith("ssd") or it.name.endsWith("eti") }.map { it.canonicalPath }.toCollection(paths)
 
-        ssdPath = paths.first { it.endsWith(".ssd") }
-        spktwePath = paths.first { it.endsWith("spktwe") }
-        epdPath = paths.first { it.endsWith("epd") }
-        etiPath = paths.first { it.endsWith("eti") }
+//        ssdPath = paths.first { it.endsWith(".ssd") }
+//        spktwePath = paths.first { it.endsWith("spktwe") }
+//        epdPath = paths.first { it.endsWith("epd") }
+//        etiPath = paths.first { it.endsWith("eti") }
 
     }
 
-    fun readSPKTWE(): SpktweMetadata {
+    @JvmOverloads fun readSPKTWE(spktwePath: String = this.paths.first { it.endsWith("spktwe") }): SpktweMetadata {
         val f = File(spktwePath)
         val lines = f.readLines()
         val start = 2
@@ -82,7 +82,7 @@ class MetadataReader {
                 events, spikeTimestampsPath, spikeWaveformsPath, eventTimestampPath, codeEventsPath)
     }
 
-    fun readEPD(): EpdMetadata {
+    @JvmOverloads fun readEPD(epdPath: String = paths.first { it.endsWith("epd") }): EpdMetadata {
         val f = File(epdPath)
         val lines = f.readLines()
 
@@ -120,7 +120,7 @@ class MetadataReader {
 
     }
 
-    fun readSSD(): SsdMetadata {
+    @JvmOverloads fun readSSD(ssdPath: String = this.paths.first { it.endsWith(".ssd") }): SsdMetadata {
         val f = File(ssdPath)
 
         val lines = f.readLines()
@@ -162,12 +162,12 @@ class MetadataReader {
         }
 
 
-        return SsdMetadata(basePath(spktwePath), version, numberOfUnits, unitNames, unitOriginator, spikesInEachUnit,
+        return SsdMetadata(basePath(ssdPath), version, numberOfUnits, unitNames, unitOriginator, spikesInEachUnit,
                 spikeTimeSamplingFrequency, waveformInternalSamplingFrequency, waveformLengthSamples, waveformSpikeAlignOffset,
                 eventSize, spikeTimestampPath, unitStatisticsPath, eventTimestampPath, eventCodesPath)
     }
 
-    fun readETI(): EtiMetadata {
+    @JvmOverloads fun readETI(etiPath: String = this.paths.first { it.endsWith("eti") }): EtiMetadata {
         return EtiMetadata(etiPath)
     }
 

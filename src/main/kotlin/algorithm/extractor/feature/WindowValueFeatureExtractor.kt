@@ -1,5 +1,6 @@
 package algorithm.extractor.feature
 
+import algorithm.extractor.feature.strategy.mean.ArithmeticMeanFeatureExtractor
 import main.DataPoint
 import model.Spike
 import model.TrialData
@@ -10,7 +11,7 @@ import model.TrialData
  * however, a value of 0.5 would mean that if, for example first window goes from 0 to 100, the second one goes from 50 to 150, assuming that
  * the window length is 100
  */
-class WindowValueFeatureExtractor(private val windowLength: Int, private val overlap: Double) : FeatureExtractor<TrialData, List<DataPoint>> {
+class WindowValueFeatureExtractor(private val windowLength: Int, private val overlap: Double, private val emptyValue: Float = 0f) : FeatureExtractor<TrialData, List<DataPoint>> {
     override fun extract(data: Collection<TrialData>, extractor: (Array<Spike>) -> Float): List<DataPoint> {
         return data.map {
             val step = windowLength * overlap
@@ -33,7 +34,7 @@ class WindowValueFeatureExtractor(private val windowLength: Int, private val ove
                         val res = extractor(slice)
                         windowValues.add(res)
                     } else {
-                        windowValues.add(0f)
+                        windowValues.add(emptyValue)
                     }
                     start += step
                     end += step

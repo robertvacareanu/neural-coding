@@ -5,6 +5,7 @@ import algorithm.extractor.data.BetweenStim
 import algorithm.extractor.data.BetweenTimestamps
 import algorithm.extractor.data.RandomAfterStimOn
 import algorithm.extractor.feature.SingleValueFeatureExtractor
+import algorithm.extractor.feature.constructExtractor
 import algorithm.extractor.value.*
 import algorithm.processor.*
 import reader.spikes.DataSpikeReader
@@ -38,16 +39,16 @@ fun main(args: Array<String>) {
             .defaultHelp(true)
 
     val valueExtractors = mapOf(
-            "meanamplitude" to MeanAmplitude::class.java,
-            "ma" to MeanAmplitude::class.java,
+            "meanamplitude" to Amplitude::class.java,
+            "ma" to Amplitude::class.java,
             "meanamplitudeoffirstspike" to MeanAmplitudeOfFirstSpike::class.java,
             "mafs" to MeanAmplitudeOfFirstSpike::class.java,
-            "meanarea" to MeanArea::class.java,
-            "marea" to MeanArea::class.java,
-            "meanperimeter" to MeanPerimeter::class.java,
-            "mp" to MeanPerimeter::class.java,
-            "meanwidth" to MeanWidth::class.java,
-            "mw" to MeanWidth::class.java
+            "meanarea" to Area::class.java,
+            "marea" to Area::class.java,
+            "meanperimeter" to Perimeter::class.java,
+            "mp" to Perimeter::class.java,
+            "meanwidth" to Width::class.java,
+            "mw" to Width::class.java
     )
 
     val featureExtractors = mapOf(
@@ -80,8 +81,8 @@ fun main(args: Array<String>) {
         addArgument("--value-extractor", "-ve")
                 .type(String::class.java)
                 .required(false)
-                .setDefault("MeanAmplitude")
-                .help("Type of value extractor to use. Default is MeanAmplitude")
+                .setDefault("Amplitude")
+                .help("Type of value extractor to use. Default is Amplitude")
         addArgument("--feature-extractor", "--fe")
                 .type(String::class.java)
                 .required(false)
@@ -162,9 +163,9 @@ fun main(args: Array<String>) {
                 val ve = if (c.parameterCount == 2) c.newInstance(spktwe.waveformSpikeOffset, 0f) else c.newInstance(spktwe.waveformInternalSamplingFrequency, spktwe.waveformSpikeOffset, 0f)
                 var dataset = if (namespace.getList<Int>("rason") != null) {
                     val ints = namespace.getList<Int>("rason")
-                    process(spikeReader, ve as ValueExtractor<Spike, Float>, RandomAfterStimOn(spikeReader, ints[0], ints[1]), fe)
+                    process(spikeReader, constructExtractor((ve as ValueExtractor<Spike, Float>)::extractValue), RandomAfterStimOn(spikeReader, ints[0], ints[1]), fe)
                 } else {
-                    process(spikeReader, ve as ValueExtractor<Spike, Float>, reader[namespace.getString("reader").toLowerCase()]!!.constructors[0].newInstance(spikeReader) as BetweenTimestamps, fe)
+                    process(spikeReader, constructExtractor((ve as ValueExtractor<Spike, Float>)::extractValue), reader[namespace.getString("reader").toLowerCase()]!!.constructors[0].newInstance(spikeReader) as BetweenTimestamps, fe)
                 }
 
                 if (namespace.getBoolean("rie")) {
@@ -210,9 +211,13 @@ fun main(args: Array<String>) {
             }
         }
     } catch (e: Exception) {
-        e.printStackTrace()
-////        parser.printHelp()
-////        println("HERE")
+        if(args.isNotEmpty()) {
+            if (args[0] != "-h") {
+                parser.printHelp()
+            }
+        } else {
+            parser.printHelp()
+        }
     }
 
 }

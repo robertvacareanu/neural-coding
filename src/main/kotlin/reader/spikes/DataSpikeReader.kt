@@ -41,8 +41,6 @@ class DataSpikeReader(private val etiMetadata: EtiMetadata, private val spikeMet
                 (0 until spikeMetadata.waveformLength).mapTo(spikeData) {
                     spikew[spikeIndex + it]
                 }
-//                if(spikeData[19] < -215) {
-//                    println("$fromUnit, ${between.first}, ${between.last}, ${spikeCountUntil + between.first}, ${(spikeCountUntil + between.last + 1)} ")}
                 result.add(Spike(times[spikeIndex / spikeMetadata.waveformLength].toDouble(), spikeData.toFloatArray()))
             }
         }

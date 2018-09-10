@@ -4,11 +4,11 @@ import algorithm.extractor.data.BetweenStim
 import algorithm.extractor.data.BetweenTimestamps
 import algorithm.extractor.feature.FeatureExtractor
 import algorithm.extractor.feature.SingleValueFeatureExtractor
+import algorithm.extractor.feature.constructExtractor
 import algorithm.extractor.value.*
 import algorithm.processor.aggregateHorizontally
 import algorithm.processor.aggregateVertically
 import algorithm.processor.process
-import algorithm.processor.removeIfEmpty
 import exporter.exportCSV
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.async
@@ -43,7 +43,7 @@ fun generateFiles(spikeReader: SpikeReader,
                 for (ve in valueExtractors) {
                     for (de in dataExtractors) {
                         jobs.add(launch {
-                            exportCSV(process(spikeReader = spikeReader, valueExtractor = ve, featureExtractor = fe, dataExtractor = de, preProcessingTransformers = preProcessingTransformers, postProcessingTransformers = postProcessingTransformers), nameGenerator(ve, fe, de))
+                            exportCSV(process(spikeReader = spikeReader, valueExtractor = constructExtractor(ve::extractValue), featureExtractor = fe, dataExtractor = de, preProcessingTransformers = preProcessingTransformers, postProcessingTransformers = postProcessingTransformers), nameGenerator(ve, fe, de))
                         })
                     }
                 }
@@ -67,10 +67,10 @@ fun generateGeometricFeatures(paths: List<String>,
 
         aggregateHorizontally(
                 listOf(
-                        process(sr, MeanAmplitude(spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
-                        process(sr, MeanArea(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
-                        process(sr, MeanPerimeter(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
-                        process(sr, MeanWidth(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers)
+                        process(sr, constructExtractor(Amplitude(spktweMetadata.waveformSpikeOffset)::extractValue), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
+                        process(sr, constructExtractor(Area(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset)::extractValue), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
+                        process(sr, constructExtractor(Perimeter(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset)::extractValue), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers),
+                        process(sr, constructExtractor(Width(spktweMetadata.waveformInternalSamplingFrequency, spktweMetadata.waveformSpikeOffset)::extractValue), BetweenStim(sr), SingleValueFeatureExtractor(), preProcessingTransformers = preProcessingTransformers)
                 )
         )
     }
