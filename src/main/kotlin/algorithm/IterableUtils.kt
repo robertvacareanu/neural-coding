@@ -120,10 +120,18 @@ fun Iterable<Number>.median(): Double {
         list[size / 2]
     }
 }
-fun <T: Number, P: Number> Iterable<T>.join(second: Iterable<P>, f: (T, P) -> Double): List<Double> = mapIndexed { index, t -> f(t, second.elementAt(index)) }
 
-fun <T: Number, P: Number> Array<T>.join(second: Array<P>, f: (T, P) -> Double): List<Double> = mapIndexed { index, t -> f(t, second.elementAt(index)) }
+fun <T : Number, P : Number> Iterable<T>.join(second: Iterable<P>, f: (T, P) -> Double): List<Double> = mapIndexed { index, t -> f(t, second.elementAt(index)) }
 
-fun <P: Number> FloatArray.join(second: Array<P>, f: (Float, P) -> Double): List<Double> = mapIndexed { index, t -> f(t, second.elementAt(index)) }
+fun <T : Number, P : Number> Array<T>.join(second: Array<P>, f: (T, P) -> Double): List<Double> = mapIndexed { index, t -> f(t, second.elementAt(index)) }
+
+fun <P : Number> FloatArray.join(second: Array<P>, f: (Float, P) -> Double): List<Double> = mapIndexed { index, t -> f(t, second.elementAt(index)) }
 
 fun FloatArray.join(second: DoubleArray, f: (Float, Double) -> Double): FloatArray = mapIndexed { index, t -> f(t, second.elementAt(index)).toFloat() }.toFloatArray()
+
+fun <T : Number> Iterable<T>.averageSmooth(howMany: Int = 1): List<Double> = mutableListOf<Double>()
+        .plus((0 until howMany).map { elementAt(it).toDouble() })
+        .plus((howMany until count() - howMany).map {
+            toList().slice(it-howMany .. it+howMany).sumByDouble { it.toDouble() }.div(howMany * 2  + 1)
+        })
+        .plus((count() - howMany until count()).map { elementAt(it).toDouble() })
