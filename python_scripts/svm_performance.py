@@ -32,19 +32,21 @@ def svm_comparison(path, orientations, histogram, repetitions, size, pca_percent
         transformed = pca.transform(new_x)
         index = np.where(var <= pca_percent)[0][-1] + 1
         new_x = transformed[:, :index]
+        print(new_x)
+        print(new_y)
 
     scores1 = []
     for _ in range(0, repetitions):
         X_train, X_test, y_train, y_test = train_test_split(new_x, new_y, test_size=size)
         pipeline = Pipeline(
-            [('scaler', StandardScaler()), ('SVM', SVC(kernel=kernel, C=cost, gamma=gamma, degree = degree))])
+            [('scaler', StandardScaler()), ('SVM', SVC(kernel=kernel, C=cost, gamma=gamma, degree=degree))])
         pipeline.fit(X_train, y_train)
         scores1.append(metrics.accuracy_score(y_test, pipeline.predict(X_test)))
     print(np.mean(scores1))
     print(np.std(scores1))
 
     if histogram:
-        plt.title('SVM performance for geometric features. All orientations')
+        plt.title('SVM performance for single features')
         plt.xlabel('Accuracy')
         plt.ylabel('Total')
         plt.hist(scores1, range=[0.0, 1.0], align='mid', bins=20)

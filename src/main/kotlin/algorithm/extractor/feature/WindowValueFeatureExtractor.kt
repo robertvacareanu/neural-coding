@@ -1,6 +1,5 @@
 package algorithm.extractor.feature
 
-import algorithm.extractor.feature.strategy.mean.ArithmeticMeanFeatureExtractor
 import main.DataPoint
 import model.Spike
 import model.TrialData
@@ -31,7 +30,7 @@ class WindowValueFeatureExtractor(private val windowLength: Int, private val ove
                     }
                     if ((from != -1) and (to != -1)) {
                         val slice = array.sliceArray(from until to)
-                        val res = extractor(slice)
+                        val res = if(slice.isNotEmpty()) extractor(slice) else emptyValue
                         windowValues.add(res)
                     } else {
                         windowValues.add(emptyValue)

@@ -2,6 +2,7 @@ import argparse
 import json
 import numpy as np
 import pandas as pd
+import scipy as sp
 import warnings
 from sklearn import metrics
 from sklearn.decomposition import PCA
@@ -10,18 +11,21 @@ from sklearn.ensemble import VotingClassifier
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from sklearn.pipeline import Pipeline
 
 classifier_map = {
     'SVC': [Pipeline([('scaler', StandardScaler()), ('clf', SVC())]), [{'clf__kernel': ['rbf'],
                                                                         'clf__gamma': [2 ** x for x in range(-10, 10)],
                                                                         'clf__C': [2 ** x for x in range(-10, 10)]},
-                                                                       {'clf__kernel': ['linear'], 'clf__C': [2 ** x for x in range(-10, 10)]},
-                                                                       {'clf__kernel': ['poly'], 'clf__C': [2 ** x for x in range(-10, 10)],
+                                                                       {'clf__kernel': ['linear'],
+                                                                        'clf__C': [2 ** x for x in range(-10, 10)]},
+                                                                       {'clf__kernel': ['poly'],
+                                                                        'clf__C': [2 ** x for x in range(-10, 10)],
                                                                         'clf__degree': np.linspace(1, 13, 7),
-                                                                        'clf__gamma': [2 ** x for x in range(-10, 10)}]],
+                                                                        'clf__gamma': [2 ** x for x in
+                                                                                       range(-10, 10)]}]],
     'LDA': [Pipeline([('scaler', StandardScaler()), ('clf', LDA())]), [{'clf__n_components': range(1, 7)}]],
     'Voting1': [
         Pipeline([('scaler', StandardScaler()), ('clf', VotingClassifier(
@@ -41,11 +45,10 @@ classifier_map = {
 
         ]
     ],
-    'KNN': [Pipeline([('scaler', StandardScaler()), ('clf', KNeighborsClassifier())]), [{'n_neighbors': range(1, 7)}]],
+    'KNN': [Pipeline([('scaler', StandardScaler()), ('clf', KNeighborsClassifier())]), [{'clf__n_neighbors': [1,3,5]}]],
 }
 
-
-def find_best_params(path, classifier, orientations, attempts, repetitions, export, splitsize, pca_percent, random):
+def find_best_params(path, classifier, orientations, attempts, repetitions, export, splitsize, pca_percent):
     data = pd.read_csv(path, header=None)
     X = data.iloc[:, :-1].values
     Y = data.iloc[:, -1].values
@@ -71,12 +74,8 @@ def find_best_params(path, classifier, orientations, attempts, repetitions, expo
     scores = {}
     for _ in range(0, repetitions):
         X_train, X_test, y_train, y_test = train_test_split(new_x, new_y, test_size=splitsize)
-        if random:
-            clf = RandomizedSearchCV(classifier_map[classifier][0], classifier_map[classifier][1], cv=5,
-                                     scoring='accuracy', n_jobs=-1)
-        else:
-            clf = GridSearchCV(classifier_map[classifier][0], classifier_map[classifier][1], cv=5,
-                               scoring='accuracy', n_jobs=-1)
+        clf = GridSearchCV(classifier_map[classifier][0], classifier_map[classifier][1], cv=5,
+                           scoring='accuracy', n_jobs=-1)
         clf.fit(X_train, y_train)
         name = json.dumps(clf.best_params_)
         if name in scores:
@@ -125,7 +124,6 @@ parser.add_argument("-r", "--repetitions", required=False, type=int, default=25,
 parser.add_argument("-a", "--attempts", required=False, action='store_true')
 parser.add_argument("-e", "--export", required=False, default=None)
 parser.add_argument("-s", "--splitsize", required=False, type=float, default=0.1)
-parser.add_argument("--random", required=False, action='store_true')
 parser.add_argument("--pca", type=float, required=False, default=None, help="Percentage of variance to take")
 result = parser.parse_args()
 if result.classifier not in classifier_map:
@@ -133,4 +131,4 @@ if result.classifier not in classifier_map:
 print(result)
 for p in result.path:
     find_best_params(p, result.classifier, result.orientation, result.attempts,
-                     result.repetitions, result.export, result.splitsize, result.pca, result.random)
+                     result.repetitions, result.export, result.splitsize, result.pca)

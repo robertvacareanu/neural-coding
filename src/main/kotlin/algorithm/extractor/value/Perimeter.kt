@@ -2,8 +2,6 @@ package algorithm.extractor.value
 
 import model.Spike
 import java.awt.geom.Point2D
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 /**
  * Each value in the result float array represents the mean perimeter for a particular trial

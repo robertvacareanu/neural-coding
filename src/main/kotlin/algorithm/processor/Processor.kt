@@ -4,8 +4,9 @@ import algorithm.extractor.data.BetweenStim
 import algorithm.extractor.data.BetweenTimestamps
 import algorithm.extractor.feature.FeatureExtractor
 import algorithm.extractor.feature.SingleValueFeatureExtractor
-import algorithm.extractor.value.MeanAmplitude
-import algorithm.extractor.value.ValueExtractor
+import algorithm.extractor.feature.constructExtractor
+import algorithm.extractor.feature.strategy.mean.ArithmeticMeanFeatureExtractor
+import algorithm.extractor.value.Amplitude
 import main.DataSet
 import model.Spike
 import model.TrialData
@@ -22,13 +23,13 @@ import reader.spikes.SpikeReader
  *  - postProcessing -> after computing the features with @param valueExtractor using @param featureExtractor
  */
 fun process(spikeReader: SpikeReader,
-            valueExtractor: ValueExtractor<Spike, Float>,
+            valueExtractor: (Array<Spike>) -> Float,
             dataExtractor: BetweenTimestamps,
             featureExtractor: FeatureExtractor<TrialData, List<Pair<Int, FloatArray>>>,
             preProcessingTransformers: List<(List<TrialData>) -> List<TrialData>> = listOf(),
             postProcessingTransformers: List<(DataSet) -> DataSet> = listOf()
 ): DataSet =
-        postProcessingTransformers.fold(featureExtractor.extract(preProcessingTransformers.fold(dataExtractor.extractData(spikeReader.readTrials())) { acc, function -> function(acc) }, valueExtractor::extractValue)) { acc, function -> function(acc) }
+        postProcessingTransformers.fold(featureExtractor.extract(preProcessingTransformers.fold(dataExtractor.extractData(spikeReader.readTrials())) { acc, function -> function(acc) }, valueExtractor)) { acc, function -> function(acc) }
 
 /**
  * An utility function to simplify the whole process of generating feature file using unsorted dataset
@@ -44,11 +45,11 @@ fun processUnsorted(path: String,
     val mr = MetadataReader(path)
     val spktwe = mr.readSPKTWE()
     val sp = DataSpikeReader(mr.readETI(), SpikeMetadata(spktwe))
-    val ve = MeanAmplitude(spktwe.waveformSpikeOffset)
+    val ve = constructExtractor(Amplitude(spktwe.waveformSpikeOffset)::extractValue, ArithmeticMeanFeatureExtractor()::extract)
     val de = BetweenStim(sp)
     val fe = SingleValueFeatureExtractor()
 
-    return postProcessingTransformers.fold(fe.extract(preProcessingTransformers.fold(de.extractData(sp.readTrials())) { acc, function -> function(acc) }, ve::extractValue)) { acc, function -> function(acc) }
+    return postProcessingTransformers.fold(fe.extract(preProcessingTransformers.fold(de.extractData(sp.readTrials())) { acc, function -> function(acc) }, ve)) { acc, function -> function(acc) }
 }
 
 /**
@@ -65,9 +66,9 @@ fun processSorted(path: String,
     val mr = MetadataReader(path)
     val spktwe = mr.readSPKTWE()
     val sp = DataSpikeReader(mr.readETI(), SpikeMetadata(mr.readSSD()))
-    val ve = MeanAmplitude(spktwe.waveformSpikeOffset)
+    val ve = constructExtractor(Amplitude(spktwe.waveformSpikeOffset)::extractValue, ArithmeticMeanFeatureExtractor()::extract)
     val de = BetweenStim(sp)
     val fe = SingleValueFeatureExtractor()
 
-    return postProcessingTransformers.fold(fe.extract(preProcessingTransformers.fold(de.extractData(sp.readTrials())) { acc, function -> function(acc) }, ve::extractValue)) { acc, function -> function(acc) }
+    return postProcessingTransformers.fold(fe.extract(preProcessingTransformers.fold(de.extractData(sp.readTrials())) { acc, function -> function(acc) }, ve)) { acc, function -> function(acc) }
 }

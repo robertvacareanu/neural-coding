@@ -6,16 +6,25 @@ import model.Spike
 /**
  * Created by robert on 8/26/18.
  */
+
+/**
+ * The value extractor maps a whole array to a single value -- @see [TimeToFirstspke]
+ */
 fun constructExtractor(ve: (Array<Spike>) -> Float) = ve
+
+/**
+ * Ex: [InterSpikeInterval]
+ */
 @JvmName("consructArrayExtractor")
 fun constructExtractor(ve: (Array<Spike>) -> FloatArray, strategy: (FloatArray) -> Double): (Array<Spike>) -> Float = { strategy(ve(it)).toFloat() }
+
+/**
+ * Constructs a (Array<Spike>) -> Float function from (Spike) -> Float and (FloatArray) -> Double
+ */
 fun constructExtractor(ve: (Spike) -> Float, strategy: (FloatArray) -> Double): (Array<Spike>) -> Float = { strategy(it.map(ve).toFloatArray()).toFloat() }
+
+/**
+ * Uses [ArithmeticMeanFeatureExtractor] as default
+ */
 @JvmName("constructExtractorDefault")
 fun constructExtractor(ve: (Spike) -> Float): (Array<Spike>) -> Float = { ArithmeticMeanFeatureExtractor().extract(it.map(ve).toFloatArray()).toFloat() }
-//abstract class AbstractFeatureExtractor : FeatureExtractor<TrialData, DataSet> {
-//    @JvmName("extractHelperSDSV")
-//    protected fun extractHelper(data: Array<Spike>, valueExtractor: (Spike) -> Float, strategy: (List<Float>) -> Double) = strategy(data.map(valueExtractor)).toFloat()
-//    protected fun extractHelper(data: Array<Spike>, valueExtractor: (Array<Spike>) -> Float) = valueExtractor(data)
-//    protected fun extractHelper(data: Array<Spike>, valueExtractor: (Array<Spike>) -> List<Float>, strategy: (List<Float>) -> Double) = strategy(valueExtractor(data)).toFloat()
-//
-//}

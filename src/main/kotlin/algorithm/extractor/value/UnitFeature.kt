@@ -8,7 +8,7 @@ import model.Spike
  */
 class UnitFeature : ValueExtractor<Array<Spike>, Float> {
     override fun extractValue(values: Array<Spike>): Float =
-            if(values.isNotEmpty()) {
+            if (values.isNotEmpty()) {
                 1.0f
             } else {
                 0.0f

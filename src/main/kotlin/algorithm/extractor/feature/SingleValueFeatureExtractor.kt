@@ -10,6 +10,6 @@ import model.TrialData
  */
 class SingleValueFeatureExtractor(private val emptyValue: Float = 0f) : FeatureExtractor<TrialData, List<DataPoint>> {
 
-    override fun extract(data: Collection<TrialData>, extractor: (Array<Spike>) -> Float): List<Pair<Int, FloatArray>> = data.map { Pair(it.orientation, it.spikeData.map { if(it.isNotEmpty()) extractor(it) else emptyValue }.toFloatArray()) }
+    override fun extract(data: Collection<TrialData>, extractor: (Array<Spike>) -> Float): List<Pair<Int, FloatArray>> = data.map { Pair(it.orientation, it.spikeData.map { if (it.isNotEmpty()) extractor(it) else emptyValue }.toFloatArray()) }
 
 }

@@ -1,8 +1,6 @@
 package algorithm.extractor.value
 
 import model.Spike
-import java.math.BigDecimal
-import java.math.RoundingMode
 import kotlin.math.abs
 
 /**

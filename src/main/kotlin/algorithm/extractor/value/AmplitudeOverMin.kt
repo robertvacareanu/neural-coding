@@ -1,8 +1,6 @@
 package algorithm.extractor.value
 
 import model.Spike
-import java.math.BigDecimal
-import java.math.RoundingMode
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -22,7 +20,7 @@ class AmplitudeOverMin(private val spikeOffset: Int, private val emptyValue: Flo
         val v2 = slice.max()!!.toDouble()
         val max = max(v1, v2)
         val min = min(v1, v2)
-        return abs(max-min).toFloat()
+        return abs(max - min).toFloat()
     }
 
 }

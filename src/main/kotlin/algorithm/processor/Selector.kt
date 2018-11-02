@@ -6,7 +6,7 @@ import model.TrialData
 
 /**
  * Utility functions to remove data: features or data points
- * The ones that takes as a parameter the emptyValue are used, generally, for geometric features
+ * The ones that takes as a parameter the emptyValue are used, generally, for value extractors that works on a single spike
  */
 
 

@@ -2,10 +2,9 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib import style
 from sklearn.decomposition import PCA
 
-style.use("ggplot")
+# style.use("ggplot")
 from sklearn.preprocessing import StandardScaler
 
 
@@ -40,8 +39,6 @@ parser = argparse.ArgumentParser(description="Script to plot the svm")
 parser.add_argument("-p", "--path", nargs='*', required=True, help="Path to the file with the features")
 parser.add_argument("-o", "--orientation", nargs="*", type=int, required=False, default=None,
                     help="Orientation to plot svm for. Default is 0 and 90")
-parser.add_argument("-k", "--kernel", required=False, default='linear', help="Kernel type")
-parser.add_argument("-c", required=False, default=1, type=float, help="Kernel type")
 result = parser.parse_args()
 print(result)
 plot_pca(result.path[0], result.orientation)
