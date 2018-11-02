@@ -1,8 +1,8 @@
 package algorithm.extractor.feature
 
-import algorithm.extractor.feature.SingleValueFeatureExtractor
-import algorithm.extractor.feature.WindowValueFeatureExtractor
+import algorithm.extractor.feature.strategy.mean.ArithmeticMeanFeatureExtractor
 import algorithm.extractor.value.*
+import algorithm.extractor.value.SpikesPerSec
 import main.almostEqual
 import main.get
 import main.orientation
@@ -63,10 +63,10 @@ class FeatureExtractorTest {
 
     @Test
     fun meanAmplitudeTest() {
-        val featureExtractor = MeanAmplitude(5)
+        val featureExtractor = Amplitude(5)
 
 
-        val feature = SingleValueFeatureExtractor().extract(constructTrialDataMock(), featureExtractor::extractValue)
+        val feature = SingleValueFeatureExtractor().extract(constructTrialDataMock(), constructExtractor(featureExtractor::extractValue, ArithmeticMeanFeatureExtractor()::extract))
 
         assert(feature[0].orientation == 1)
         assert(feature[1].orientation == 1)
@@ -81,7 +81,7 @@ class FeatureExtractorTest {
 
     @Test
     fun spikePerSecTest() {
-        val feature = SingleValueFeatureExtractor().extract(constructTrialDataMock(), SpikesPerSec(10.0f)::extractValue)
+        val feature = SingleValueFeatureExtractor().extract(constructTrialDataMock(), constructExtractor(SpikesPerSec(10.0f)::extractValue))
 
         assert(feature[0].orientation == 1)
         assert(feature[1].orientation == 1)
@@ -98,7 +98,7 @@ class FeatureExtractorTest {
     @Test
     fun windowValueExtractorTest() {
         val wve = WindowValueFeatureExtractor(10, 0.5)
-        val fe = MeanAmplitude(2)
+        val fe = constructExtractor(Amplitude(2)::extractValue, ArithmeticMeanFeatureExtractor()::extract)
 
         val t1ChannelData = listOf(
                 Spike(1.0, floatArrayOf(1f, 2f, 10f, 4f, 5f)),
@@ -115,7 +115,7 @@ class FeatureExtractorTest {
                 Spike(29.0, floatArrayOf(1f, 2f, 34f, 4f, 5f))
         )
 
-        val res = wve.extract(listOf(TrialData(1, listOf(t1ChannelData.toTypedArray()), Pair(1.0, 29.0))), fe::extractValue)
+        val res = wve.extract(listOf(TrialData(1, listOf(t1ChannelData.toTypedArray()), Pair(1.0, 29.0))), fe)
 
         assert(14.0 almostEqual res[0][0])
         assert(19.5 almostEqual res[0][1])
@@ -136,7 +136,7 @@ class FeatureExtractorTest {
         )
 
 
-        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 3.0))), MeanPerimeter(1f, 2)::extractValue)
+        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 3.0))), constructExtractor(Perimeter(1f, 2)::extractValue, ArithmeticMeanFeatureExtractor()::extract))
 
         var result = Point2D.distance(1.0, t1Channel1Data[0][0].toDouble(), 2.0, t1Channel1Data[0][1].toDouble()) + Point2D.distance(2.0, t1Channel1Data[0][1].toDouble(), 3.0, t1Channel1Data[0][2].toDouble()) +
                 Point2D.distance(3.0, t1Channel1Data[0][2].toDouble(), 4.0, t1Channel1Data[0][3].toDouble()) + Point2D.distance(4.0, t1Channel1Data[0][3].toDouble(), 5.0, t1Channel1Data[0][4].toDouble()) +
@@ -183,7 +183,7 @@ class FeatureExtractorTest {
                 Point2D.distance(450.3, t1Channel2Data[4][3].toDouble(), 450.4, t1Channel2Data[4][4].toDouble()) +
                 Point2D.distance(450.4, t1Channel2Data[4][4].toDouble(), 450.5, t1Channel2Data[4][5].toDouble())
 
-        assert(result / 5 almostEqual SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel2Data), Pair(1.0, 460.0))), MeanPerimeter(10f, 3)::extractValue)[0].second[0])
+        assert(result / 5 almostEqual SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel2Data), Pair(1.0, 460.0))), constructExtractor(Perimeter(10f, 3)::extractValue, ArithmeticMeanFeatureExtractor()::extract))[0].second[0])
 
     }
 
@@ -194,7 +194,7 @@ class FeatureExtractorTest {
                 Spike(2.0, floatArrayOf(0.0f, 6.0f, -20.0f, 25.0f, 56.0f))
         )
 
-        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 5.0))), MeanArea(1.0f, 2)::extractValue)
+        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 5.0))), constructExtractor(Area(1.0f, 2)::extractValue, ArithmeticMeanFeatureExtractor()::extract))
 
         val s1 = listOf(Pair(1.0f, 0.0f), Pair(2.0f, -15.0f), Pair(3.0f, -52.0f), Pair(4.0f, -22.0f), Pair(5.0f, -31.0f))
 
@@ -214,7 +214,7 @@ class FeatureExtractorTest {
                 Spike(1.0, floatArrayOf(0.0f, -15.0f, -52.0f, -22.0f, 0.0f))
         )
 
-        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 5.0))), MeanWidth(1.0f, 2)::extractValue)
+        val feature = SingleValueFeatureExtractor().extract(listOf(TrialData(1, listOf(t1Channel1Data), Pair(1.0, 5.0))), constructExtractor(Width(1.0f, 2)::extractValue, ArithmeticMeanFeatureExtractor()::extract))
 
         assert(feature[0][0] almostEqual 4.0)
     }
