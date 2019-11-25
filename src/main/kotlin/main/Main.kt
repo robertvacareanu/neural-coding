@@ -252,14 +252,14 @@ operator fun Pair<Int, FloatArray>.get(index: Int) = second[index]
 fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
 
 /**
- * Providing an alias for first
+ * Providing an alias for first for a [DataPoint]
  * It improves readability
  */
 val Pair<Int, FloatArray>.orientation: Int
     get() = first
 
 /**
- * Providing an alias for first
+ * Providing an alias for second for a [DataPoint]
  * It improves readability
  */
 val Pair<Int, FloatArray>.values: FloatArray
