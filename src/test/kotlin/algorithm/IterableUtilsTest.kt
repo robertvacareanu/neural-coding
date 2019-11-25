@@ -75,4 +75,23 @@ class IterableUtilsTest {
         assert(result[5] == 13)
 
     }
+
+    @Test
+    fun medianTest() {
+        var x = listOf(1,2,3,4,5)
+        assert(x.median() == x[2].toDouble())
+
+        x = listOf(6,7,8,9)
+        assert(x.median() == (x[1].toDouble() + x[2].toDouble())/2)
+
+    }
+
+    @Test
+    fun joinTest() {
+        val a = listOf(1,2,3,4)
+        val b = listOf(1.1, 2.2, 3.3, 4.4)
+
+        assert(a.join(b) {i, d -> i + d } == listOf(a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3]+b[3]))
+    }
+
 }

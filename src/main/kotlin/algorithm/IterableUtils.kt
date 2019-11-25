@@ -1,6 +1,5 @@
 package algorithm
 
-import model.Spike
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.pow
@@ -76,10 +75,12 @@ fun Iterable<Number>.unbiasedVarianceEstimate(): Double {
 
 /**
  * Assumes a normal distribution
+ * https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation
  */
 fun Iterable<Number>.unbiasedStd(): Double {
     /**
      * At infinity
+     * -- series Gamma[x/2]/Gamma[(x-1)/2] in wolfram alpha
      */
     fun puiseuxExpansion(size: Int): Double {
         val n = size.toDouble()
@@ -135,3 +136,48 @@ fun <T : Number> Iterable<T>.averageSmooth(howMany: Int = 1): List<Double> = mut
             toList().slice(it-howMany .. it+howMany).sumByDouble { it.toDouble() }.div(howMany * 2  + 1)
         })
         .plus((count() - howMany until count()).map { elementAt(it).toDouble() })
+
+/**
+ * @return a list containing weights that sums to one. The weights were computed using 1/n
+ * 1 to e
+ */
+fun weightsWithInvN(count: Int): DoubleArray {
+    val f: (Double) -> Double = { 1 / it }
+    // Interval spacings
+    val riemannIndices = DoubleArray(count) { Math.E - it * (Math.E - 1) / count }.reversedArray()
+    val weights = riemannIndices.map { f(it) * (Math.E - 1) / count }
+    val error = (1.0 - weights.sum()) / count
+
+    return weights.map { it + error }.toDoubleArray()
+}
+
+/**
+ * @return a list containing weights that sums to one. The weights were computed using 1/sqrt(n)
+ * 1/4 to 1
+ */
+fun weightsWithInvSqrtN(count: Int): DoubleArray {
+    val f: (Double) -> Double = { 1 / sqrt(it) }
+    val riemannIndices = DoubleArray(count) { 1.0 - it * 3.0 / (4 * count) }.reversedArray()
+    val weights = riemannIndices.map { f(it) * 3.0 / (4 * count) }
+    val error = (1.0 - weights.sum()) / count
+
+    return weights.map { it + error }.toDoubleArray()
+}
+
+/**
+ * sin(1/x) from 0.12 to 0.14
+ * @return a list containing weights that sums to one. The weights were computed using 1/sin(1/n)
+ */
+fun weightsWithSinInvN(count: Int): DoubleArray {
+    val f: (Double) -> Double = { sin(1 / it) }
+    val riemannIndices = DoubleArray(count) { 0.14 - it * 0.02 / count }.reversedArray()
+    val weights = riemannIndices.map {
+        f(it) * 0.02 / count
+    }
+
+    val integral = 0.0186397
+    val error = (integral - weights.sum()) / count
+
+    return weights.map { it + error }.map { it / integral }.toDoubleArray()
+
+}
